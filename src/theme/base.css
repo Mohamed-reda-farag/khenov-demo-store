@@ -1,0 +1,168 @@
+/* Base element styles. Uses tokens only. */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Desktop only: keep the layout from shifting when a modal hides the scrollbar. */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    scrollbar-gutter: stable;
+  }
+}
+
+html.overlay-open {
+  overflow: hidden;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Arabic needs more vertical air than Latin. */
+:lang(ar) body {
+  line-height: 1.8;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent-600);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+
+::selection {
+  background: var(--color-accent-100);
+  color: var(--color-ink-900);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* Page container: generous gutters, centered, logical padding. */
+.container-page {
+  width: 100%;
+  max-width: 90rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+@media (min-width: 48rem) {
+  .container-page {
+    padding-inline: 2rem;
+  }
+}
+@media (min-width: 80rem) {
+  .container-page {
+    padding-inline: 3rem;
+  }
+}
+
+/* Skeleton shimmer: transform-only animation. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-sand-100);
+  --shimmer-from: -100%;
+  --shimmer-to: 100%;
+}
+[dir='rtl'] .skeleton {
+  --shimmer-from: 100%;
+  --shimmer-to: -100%;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  transform: translateX(var(--shimmer-from));
+  animation: shimmer 1.4s var(--ease-in-out) infinite;
+}
+@keyframes shimmer {
+  to {
+    transform: translateX(var(--shimmer-to));
+  }
+}
+
+/* Overlay enter/exit — opacity + transform only. */
+.overlay-scrim {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    visibility 0s linear var(--dur-base);
+}
+.overlay-scrim[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    visibility 0s;
+}
+
+.drawer-panel {
+  --drawer-offset: 100%;
+  transform: translateX(var(--drawer-offset));
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+[dir='rtl'] .drawer-panel {
+  --drawer-offset: -100%;
+}
+.drawer-panel[data-side='start'] {
+  --drawer-offset: -100%;
+}
+[dir='rtl'] .drawer-panel[data-side='start'] {
+  --drawer-offset: 100%;
+}
+.drawer-panel[data-open='true'] {
+  transform: translateX(0);
+  box-shadow: var(--shadow-overlay);
+}
+
+.dialog-panel {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+.dialog-panel[data-open='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+.toast-item {
+  animation: toast-in var(--dur-base) var(--ease-out) both;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* Respect reduced motion everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

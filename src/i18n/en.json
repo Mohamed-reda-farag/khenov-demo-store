@@ -1,0 +1,126 @@
+{
+  "meta": {
+    "title": "ATHAR — Footwear with a quiet design",
+    "description": "A fictional bilingual footwear store, a demo by KHENOV. All data is fictional."
+  },
+  "brand": {
+    "name": "ATHAR",
+    "latinName": "ATHAR",
+    "tagline": "Every step leaves a mark"
+  },
+  "common": {
+    "close": "Close",
+    "back": "Back",
+    "retry": "Try again",
+    "loading": "Loading",
+    "skipToContent": "Skip to content"
+  },
+  "language": {
+    "switchTo": "عربي",
+    "switchLabel": "Switch language to Arabic"
+  },
+  "announcement": {
+    "demoBadge": "Demo by KHENOV",
+    "shipping": "Free shipping on orders over EGP 2,000"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "shop": "Shop",
+    "newIn": "New in",
+    "offers": "Offers",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "shopAll": "Shop all",
+    "byCategory": "By category",
+    "byCollection": "Collections"
+  },
+  "header": {
+    "search": "Search",
+    "wishlist": "Wishlist",
+    "account": "Account",
+    "cart": "Cart",
+    "cartLabel": "Cart, {count, plural, =0 {empty} one {1 item} other {{countText} items}}"
+  },
+  "cart": {
+    "title": "Your cart",
+    "emptyTitle": "Your cart is empty",
+    "emptyBody": "Pick a pair that feels like you and we'll keep it here.",
+    "emptyCta": "Start shopping",
+    "size": "Size",
+    "color": "Colour",
+    "quantity": "Quantity",
+    "increase": "Increase quantity",
+    "decrease": "Decrease quantity",
+    "remove": "Remove {name} from cart",
+    "removed": "{name} removed",
+    "undo": "Undo",
+    "restored": "{name} is back in your cart",
+    "subtotal": "Subtotal",
+    "shippingNote": "Shipping and discounts are calculated at checkout.",
+    "checkout": "Checkout",
+    "viewCart": "View cart",
+    "maxReached": "You've reached the maximum available for this size.",
+    "updateFailed": "We couldn't update your cart. We restored the last saved version.",
+    "added": "{name} added to your cart"
+  },
+  "footer": {
+    "about": "Footwear with a quiet design and comfort that lasts. This store is fictional — a demo of what the KHENOV studio builds.",
+    "shopTitle": "Shop",
+    "helpTitle": "Help",
+    "helpShipping": "Shipping & delivery",
+    "helpReturns": "Exchanges & returns",
+    "helpSizeGuide": "Size guide",
+    "demoTitle": "Demo",
+    "disclaimer": "All products, prices and reviews are fictional. There are no real payments and no real accounts.",
+    "rights": "A demo by KHENOV"
+  },
+  "demo": {
+    "reset": "Reset demo",
+    "resetTitle": "Reset the demo?",
+    "resetBody": "This clears your cart and everything saved on this device, and returns the store to its starting state.",
+    "resetConfirm": "Yes, reset",
+    "resetCancel": "Cancel",
+    "resetDone": "Demo has been reset"
+  },
+  "comingSoon": {
+    "title": "This page is being built",
+    "body": "It will be added in an upcoming milestone of the demo.",
+    "cta": "Back to home"
+  },
+  "states": {
+    "errorTitle": "Something went wrong",
+    "errorBody": "We couldn't load the data. Check your connection and try again.",
+    "emptyTitle": "No results",
+    "emptyBody": "Try a different word or remove some filters."
+  },
+  "product": {
+    "newBadge": "New",
+    "discountBadge": "{percent} off",
+    "ratingLabel": "Rated {rating} out of 5 from {countText} reviews",
+    "from": "From"
+  },
+  "foundation": {
+    "eyebrow": "Milestone 0 — Foundation",
+    "title": "The ATHAR foundation",
+    "lead": "A bilingual design system, a local data layer and the store shell. This is a temporary preview that the next milestone replaces with the real home page.",
+    "tokensTitle": "Colour and type",
+    "primitivesTitle": "Components and states",
+    "catalogTitle": "Products from the data layer",
+    "buttonPrimary": "Primary",
+    "buttonSecondary": "Secondary",
+    "buttonGhost": "Ghost",
+    "buttonDisabled": "Disabled",
+    "buttonLoading": "Saving",
+    "showToast": "Show a toast",
+    "toastText": "This is what a toast looks like",
+    "addSampleToCart": "Add a sample item to the cart",
+    "openCart": "Open the cart",
+    "searchLabel": "Search products",
+    "searchPlaceholder": "Try: sneakers, بوت, navy…",
+    "reload": "Reload",
+    "failNext": "Simulate an error",
+    "results": "{count, plural, =0 {No results} one {1 result} other {{countText} results}}",
+    "fastHint": "Add ?demo=fast to the URL to remove the simulated delay, or ?demo=error to force the error state.",
+    "typeSample": "Every step leaves a mark"
+  }
+}

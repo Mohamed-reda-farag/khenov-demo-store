@@ -1,0 +1,21 @@
+# dependencies
+node_modules
+
+# next / build output
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+
+# env (this project needs none, but never commit them)
+.env*
+!.env.example
+
+# logs / OS
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# raw photo originals are not committed; optimized WebP in public/images is
+assets-source/products/*
+!assets-source/products/.gitkeep

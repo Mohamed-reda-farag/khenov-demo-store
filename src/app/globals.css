@@ -1,0 +1,5 @@
+@import '@fontsource-variable/readex-pro/wght.css';
+@import '@fontsource-variable/bricolage-grotesque/wght.css';
+@import 'tailwindcss';
+@import '../theme/tokens.css';
+@import '../theme/base.css';

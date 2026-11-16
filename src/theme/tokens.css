@@ -1,0 +1,143 @@
+/*
+ * ATHAR design tokens — the single source of truth.
+ * Components may only use these (via Tailwind utilities or var(--token)).
+ * Default Tailwind palette / scales are removed so an off-token value cannot compile.
+ */
+@theme {
+  /* ---------- Color ---------- */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+
+  /* Neutrals: warm paper → ink */
+  --color-paper: #fbfaf7;
+  --color-canvas: #f3f0e9;
+  --color-sand-100: #ebe6db;
+  --color-sand-200: #ddd6c7;
+  --color-sand-300: #c6bda9;
+  --color-ink-400: #8a8579;
+  --color-ink-500: #6b665b;
+  --color-ink-700: #3a372f;
+  --color-ink-900: #14130f;
+
+  /* Accent: ember (bold). 600 passes AA with white text. */
+  --color-accent-100: #fde8dc;
+  --color-accent-500: #e5541b;
+  --color-accent-600: #c2410c;
+  --color-accent-700: #9a3412;
+
+  /* Feedback */
+  --color-success-100: #dff3e6;
+  --color-success-600: #17744a;
+  --color-warning-100: #fbefcf;
+  --color-warning-700: #8a5a00;
+  --color-danger-100: #fbe0dd;
+  --color-danger-600: #b3261e;
+
+  /* ---------- Spacing: 8pt grid (4px half-step for fine alignment only) ---------- */
+  --spacing: 0.25rem;
+
+  /* ---------- Radius ---------- */
+  --radius-*: initial;
+  --radius-none: 0;
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-pill: 999px;
+
+  /* ---------- Typography ---------- */
+  --font-sans: 'Readex Pro Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    'Bricolage Grotesque Variable', 'Readex Pro Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --text-*: initial;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.55;
+  --text-base: 1rem;
+  --text-base--line-height: 1.65;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.6;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.4;
+  --text-2xl: clamp(1.625rem, 1.2rem + 1.6vw, 2.25rem);
+  --text-2xl--line-height: 1.25;
+  --text-3xl: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  --text-3xl--line-height: 1.15;
+  --text-display: clamp(2.75rem, 1.6rem + 5vw, 6rem);
+  --text-display--line-height: 1.02;
+
+  --font-weight-*: initial;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --tracking-*: initial;
+  --tracking-normal: 0;
+  --tracking-wide: 0.06em;
+  --tracking-display: -0.02em;
+
+  /* ---------- Shadow ---------- */
+  --shadow-*: initial;
+  --shadow-none: none;
+  --shadow-soft: 0 1px 2px rgb(20 19 15 / 0.06), 0 4px 12px rgb(20 19 15 / 0.05);
+  --shadow-lift: 0 2px 4px rgb(20 19 15 / 0.06), 0 12px 32px rgb(20 19 15 / 0.12);
+  --shadow-overlay: 0 24px 64px rgb(20 19 15 / 0.28);
+
+  /* ---------- Motion ---------- */
+  --ease-*: initial;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---------- Z-index ---------- */
+  --z-header: 30;
+  --z-mega: 40;
+  --z-scrim: 50;
+  --z-overlay: 60;
+  --z-toast: 70;
+}
+
+/* Motion durations (used through the dur-* utilities below). */
+:root {
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-slow: 380ms;
+}
+
+@utility dur-fast {
+  transition-duration: var(--dur-fast);
+}
+@utility dur-base {
+  transition-duration: var(--dur-base);
+}
+@utility dur-slow {
+  transition-duration: var(--dur-slow);
+}
+@utility ease-brand {
+  transition-timing-function: var(--ease-out);
+}
+@utility z-header {
+  z-index: var(--z-header);
+}
+@utility z-mega {
+  z-index: var(--z-mega);
+}
+@utility z-scrim {
+  z-index: var(--z-scrim);
+}
+@utility z-overlay {
+  z-index: var(--z-overlay);
+}
+@utility z-toast {
+  z-index: var(--z-toast);
+}
+
+/* Arabic must never be letter-spaced: it breaks the joined letterforms. */
+:lang(ar) {
+  --tracking-display: 0;
+  --tracking-wide: 0;
+}
