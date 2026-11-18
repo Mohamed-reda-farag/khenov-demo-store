@@ -83,3 +83,4 @@ Also update `PROJECT_STATE.md` in the repo root (done / next / decisions / how t
 - Shop state lives in the URL (`q, category, size, color, min, max, stock, sale, new, sort, page`); `src/features/shop/shop-params.ts` is the only place that parses or writes it.
 - Overlays render through `Portal` (outside `#app-shell`, which goes `inert` while one is open). Only the topmost overlay reacts to Esc/Tab.
 - Reviews are fictional samples, labelled as such. No "verified buyer" claims, no real people, no structured data (JSON-LD) is emitted.
+- Only the colour that appears in a product's photos is sold (`src/data/seed/photo-colors.ts`); other colours are shown as sold out until their photos exist.

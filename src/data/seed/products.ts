@@ -1,5 +1,6 @@
 import type { LocaleText, Product, ProductColor, SizeStock } from '../types';
 import { COLORS, type ColorKey } from './catalog-meta';
+import { PHOTO_COLORS } from './photo-colors';
 
 /* ---------- deterministic stock generation (same result on every build) ---------- */
 
@@ -74,14 +75,15 @@ interface ProductInput {
   createdAt: string;
   /** Stock shape for every colour. 'soldout' empties the whole product. */
   profile?: StockProfile;
-  /** Colours that are sold out in every size while the others stay available. */
-  soldOutColors?: readonly ColorKey[];
 }
 
-/** Each colour gets its own deterministic stock so availability really changes with the swatch. */
+/**
+ * Each colour gets its own deterministic stock. Only the colour that appears in the product's
+ * photos is sold; every other colour is sold out until photos exist for it.
+ */
 function buildColors(input: ProductInput, index: number): ProductColor[] {
   return input.colors.map((key, colorIndex) => {
-    const soldOut = input.profile === 'soldout' || input.soldOutColors?.includes(key);
+    const soldOut = input.profile === 'soldout' || key !== PHOTO_COLORS[input.slug];
     const profile: StockProfile = soldOut ? 'soldout' : (input.profile ?? 'normal');
     return {
       ...COLORS[key],
@@ -127,7 +129,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.leather,
     price: 1850,
-    colors: ['ivory', 'sand'],
+    colors: ['white', 'ivory', 'sand'],
     sizeRange: [38, 46],
     rating: 4.6,
     reviews: 212,
@@ -153,7 +155,6 @@ const INPUTS: readonly ProductInput[] = [
     reviews: 148,
     featured: true,
     createdAt: '2026-08-19',
-    soldOutColors: ['ivory'],
   },
   {
     slug: 'corniche-hi',
@@ -167,12 +168,11 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.leather,
     price: 2450,
-    colors: ['black', 'ivory'],
+    colors: ['black', 'ivory', 'navy'],
     sizeRange: [39, 46],
     rating: 4.5,
     reviews: 96,
     createdAt: '2026-06-02',
-    soldOutColors: ['ivory'],
   },
   {
     slug: 'souk-canvas',
@@ -205,7 +205,7 @@ const INPUTS: readonly ProductInput[] = [
     materials: MATERIALS.leather,
     price: 3200,
     compareAt: 3600,
-    colors: ['ivory', 'olive'],
+    colors: ['ivory', 'olive', 'black'],
     sizeRange: [39, 46],
     rating: 4.8,
     reviews: 87,
@@ -224,7 +224,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.suede,
     price: 2050,
-    colors: ['terracotta', 'navy'],
+    colors: ['terracotta', 'cobalt', 'navy'],
     sizeRange: [37, 45],
     rating: 4.4,
     reviews: 64,
@@ -283,7 +283,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.trail,
     price: 3150,
-    colors: ['olive', 'black'],
+    colors: ['olive', 'black', 'navy'],
     sizeRange: [39, 46],
     rating: 4.6,
     reviews: 59,
@@ -307,7 +307,6 @@ const INPUTS: readonly ProductInput[] = [
     rating: 4.2,
     reviews: 240,
     createdAt: '2026-02-23',
-    soldOutColors: ['cobalt'],
   },
   {
     slug: 'marathon-pro',
@@ -321,7 +320,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.mesh,
     price: 3900,
-    colors: ['black', 'terracotta'],
+    colors: ['black', 'terracotta', 'cobalt'],
     sizeRange: [39, 46],
     rating: 4.9,
     reviews: 41,
@@ -344,12 +343,11 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.suede,
     price: 3250,
-    colors: ['tan', 'black'],
+    colors: ['tan', 'black', 'beige'],
     sizeRange: [39, 46],
     rating: 4.6,
     reviews: 73,
     createdAt: '2026-09-15',
-    soldOutColors: ['black'],
   },
   {
     slug: 'atlas-chelsea',
@@ -382,7 +380,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.trail,
     price: 4600,
-    colors: ['olive', 'tan'],
+    colors: ['olive', 'tan', 'black'],
     sizeRange: [40, 46],
     rating: 4.7,
     reviews: 36,
@@ -403,7 +401,7 @@ const INPUTS: readonly ProductInput[] = [
     materials: MATERIALS.leather,
     price: 2650,
     compareAt: 3100,
-    colors: ['tan', 'black'],
+    colors: ['tan', 'brown'],
     sizeRange: [40, 46],
     rating: 4.3,
     reviews: 112,
@@ -442,7 +440,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.sandal,
     price: 1250,
-    colors: ['tan', 'cobalt'],
+    colors: ['tan', 'cobalt', 'black'],
     sizeRange: [36, 45],
     rating: 4.5,
     reviews: 154,
@@ -461,7 +459,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.sandal,
     price: 1650,
-    colors: ['tan', 'black'],
+    colors: ['tan', 'black', 'olive'],
     sizeRange: [36, 45],
     rating: 4.6,
     reviews: 92,
@@ -480,7 +478,7 @@ const INPUTS: readonly ProductInput[] = [
     materials: MATERIALS.cork,
     price: 1100,
     compareAt: 1350,
-    colors: ['sand', 'olive'],
+    colors: ['sand', 'olive', 'beige'],
     sizeRange: [36, 44],
     rating: 4.2,
     reviews: 131,
@@ -500,7 +498,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.dress,
     price: 2850,
-    colors: ['black', 'tan'],
+    colors: ['black', 'tan', 'brown'],
     sizeRange: [39, 46],
     rating: 4.7,
     reviews: 121,
@@ -519,7 +517,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.dress,
     price: 3600,
-    colors: ['black', 'tan'],
+    colors: ['black', 'tan', 'brown'],
     sizeRange: [40, 46],
     rating: 4.8,
     reviews: 49,
@@ -540,7 +538,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.dress,
     price: 3950,
-    colors: ['black', 'tan'],
+    colors: ['black', 'tan', 'brown'],
     sizeRange: [40, 46],
     rating: 4.6,
     reviews: 33,
@@ -559,7 +557,7 @@ const INPUTS: readonly ProductInput[] = [
     },
     materials: MATERIALS.leather,
     price: 2350,
-    colors: ['tan', 'navy'],
+    colors: ['tan', 'black', 'brown'],
     sizeRange: [38, 45],
     rating: 4.4,
     reviews: 77,

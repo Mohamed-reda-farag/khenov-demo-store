@@ -38,7 +38,7 @@ Brand is invented: **ATHAR / أثر**. All data is fictional.
   distribution, related, breadcrumbs, mobile sticky buy bar, per-locale metadata.
 - **Cards**: hover second photo, colour dots, old price, wishlist heart (persisted), quick view.
 - **Data**: stock per colour and size, sold-out scenarios, variant-aware filters and facets, fictional reviews,
-  wishlist / reviews / newsletter repositories. `SEED_VERSION = 2`.
+  wishlist / reviews / newsletter repositories. `SEED_VERSION = 3`.
 - **Tooling**: `npm run size` (initial JS per route, since Next 16 no longer prints it). 100 unit tests.
 
 ## Next
@@ -47,6 +47,8 @@ M2 — Cart page, checkout (mock), orders, wishlist page, search page. Routes st
 placeholder: `search`, `wishlist`, `account`, `cart`, `checkout`, `help/*` (`src/app/[locale]/[...slug]/page.tsx`).
 
 ## Decisions
+
+- M1.1: photos show one colour per product (`src/data/seed/photo-colors.ts`). That colour is sold; the other colours are sold out until photos exist. Replaces the old per-product `soldOutColors`.
 
 - **Static export, client redirect at `/`:** no middleware. `/` reads the saved language, else `/ar/`.
 - **Typed i18n:** `en.json` defines the message types; a test enforces identical keys + ICU arguments.
@@ -76,5 +78,5 @@ Useful URLs: `/ar/?demo=fast` (no delays), `/en/?demo=error` (force error states
 
 ## Seed version
 
-`SEED_VERSION = 2` in `src/lib/demo/config.ts`. Bump it whenever seed data or persisted shapes change;
+`SEED_VERSION = 3` in `src/lib/demo/config.ts`. Bump it whenever seed data or persisted shapes change;
 every visitor is reseeded automatically and old keys are purged.

@@ -107,6 +107,7 @@
     "colorsLabel": "الألوان: {colors}",
     "viewDetails": "عرض التفاصيل كاملة",
     "color": "اللون",
+    "colorAvailable": "متوفر",
     "soldOutColor": "نفد",
     "size": "المقاس",
     "sizeNone": "اختر مقاسًا",

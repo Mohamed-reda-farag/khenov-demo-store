@@ -107,6 +107,7 @@
     "colorsLabel": "Colours: {colors}",
     "viewDetails": "View full details",
     "color": "Colour",
+    "colorAvailable": "Available",
     "soldOutColor": "Sold out",
     "size": "Size",
     "sizeNone": "Choose a size",

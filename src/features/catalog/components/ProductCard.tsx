@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { photoCount } from '@/data/images';
-import { isProductSoldOut } from '@/data/stock';
+import { colorHasStock, defaultColor, isProductSoldOut } from '@/data/stock';
 import type { Product } from '@/data/types';
 import { QuickView } from '@/features/product/QuickView';
 import { WishlistButton } from '@/features/wishlist/WishlistButton';
@@ -22,7 +22,7 @@ export function ProductCard({ product }: { product: Product }) {
   const t = useTranslations('product');
   const [quickOpen, setQuickOpen] = useState(false);
   const name = format.text(product.name);
-  const color = product.colors[0];
+  const color = defaultColor(product);
   const colorHex = color?.hex ?? '#8f8e89';
   const soldOut = isProductSoldOut(product);
   const percent = format.discount(product.priceEGP, product.compareAtPriceEGP);
@@ -101,13 +101,19 @@ export function ProductCard({ product }: { product: Product }) {
         <ul
           className="flex items-center gap-1.5 pt-1"
           aria-label={t('colorsLabel', {
-            colors: product.colors.map((c) => format.text(c.name)).join(', '),
+            colors: product.colors
+              .map((c) =>
+                colorHasStock(c)
+                  ? format.text(c.name)
+                  : `${format.text(c.name)} (${t('soldOutColor')})`,
+              )
+              .join(', '),
           })}
         >
           {product.colors.map((c) => (
             <li
               key={c.id}
-              className="size-3.5 rounded-full border border-sand-300"
+              className={`size-3.5 rounded-full border border-sand-300 ${colorHasStock(c) ? '' : 'strike-diagonal text-ink-500'}`}
               style={{ backgroundColor: c.hex }}
             />
           ))}

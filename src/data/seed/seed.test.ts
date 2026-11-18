@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { allSizes, colorHasStock, isProductSoldOut, stockLevel } from '../stock';
 import { BANNERS, CATEGORIES, COLLECTIONS, PRODUCTS, REVIEWS } from './index';
+import { PHOTO_COLORS } from './photo-colors';
 
 describe('seed data integrity', () => {
   it('has the agreed shape: 24 products, 5 categories, collections, banners', () => {
@@ -53,6 +54,16 @@ describe('seed data integrity', () => {
       (p) => !isProductSoldOut(p) && p.colors.some((c) => !colorHasStock(c)),
     );
     expect(partlySoldOut.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('sells only the photographed colour of each product, except the sold-out scenario', () => {
+    expect(Object.keys(PHOTO_COLORS).sort()).toEqual(PRODUCTS.map((p) => p.slug).sort());
+    for (const p of PRODUCTS) {
+      const photographed = PHOTO_COLORS[p.slug];
+      expect(p.colors.map((c) => c.id)).toContain(photographed);
+      const buyable = p.colors.filter(colorHasStock).map((c) => c.id);
+      expect(buyable).toEqual(isProductSoldOut(p) ? [] : [photographed]);
+    }
   });
 
   it('references real cover products from categories and banners', () => {

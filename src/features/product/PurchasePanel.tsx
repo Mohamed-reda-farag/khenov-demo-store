@@ -65,9 +65,12 @@ export function PurchasePanel({ purchase, onAdded, registerCta }: PurchasePanelP
         <legend className="text-sm">
           <span className="text-ink-500">{t('color')}: </span>
           <span className="font-medium">{colorName}</span>
-          {colorSoldOut && !productSoldOut ? (
-            <span className="text-ink-500"> — {t('soldOutColor')}</span>
-          ) : null}
+          {productSoldOut ? null : (
+            <span className="text-ink-500">
+              {' '}
+              — {colorSoldOut ? t('soldOutColor') : t('colorAvailable')}
+            </span>
+          )}
         </legend>
         <div className="mt-2 flex flex-wrap gap-1">
           {product.colors.map((c) => {

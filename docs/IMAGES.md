@@ -69,6 +69,13 @@ products still use placeholders and warns about badly named or low-resolution fi
 Then check the result with `npm run dev`, and commit `public\images` and `src\data\image-manifest.json`
 (the raw files in `assets-source` are intentionally not committed).
 
+## Colours
+
+The photos of a product show one colour. `src/data/seed/photo-colors.ts` records which one: that
+colour is sold ("Available"), and the product's other colours are shown as sold out until photos
+exist for them. When photos for another colour are added, the colour-to-photo link comes with them
+(a later milestone); until then, only edit the one line for that product.
+
 ## Credits
 
 Keep a record in `docs/IMAGE_CREDITS.md` (filename, photographer, link); the file already lists every expected filename. It is not legally required

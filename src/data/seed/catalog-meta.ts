@@ -1,9 +1,12 @@
 import type { Banner, Category, Collection, ColorOption } from '../types';
 
 export const COLORS = {
+  white: { id: 'white', name: { ar: 'أبيض', en: 'White' }, hex: '#FFFFFF' },
   ivory: { id: 'ivory', name: { ar: 'عاجي', en: 'Ivory' }, hex: '#F1ECE2' },
   black: { id: 'black', name: { ar: 'أسود', en: 'Black' }, hex: '#1A1A1A' },
   sand: { id: 'sand', name: { ar: 'رملي', en: 'Sand' }, hex: '#CDB690' },
+  beige: { id: 'beige', name: { ar: 'بيج', en: 'Beige' }, hex: '#A5947F' },
+  brown: { id: 'brown', name: { ar: 'بني', en: 'Brown' }, hex: '#5A3A35' },
   olive: { id: 'olive', name: { ar: 'زيتي', en: 'Olive' }, hex: '#6B6E3C' },
   terracotta: { id: 'terracotta', name: { ar: 'طوبي', en: 'Terracotta' }, hex: '#B5532E' },
   navy: { id: 'navy', name: { ar: 'كحلي', en: 'Navy' }, hex: '#1F2C4A' },
