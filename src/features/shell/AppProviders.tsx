@@ -11,6 +11,7 @@ import { LOCALES } from '@/data/types';
 import { CartDrawer } from '@/features/cart/CartDrawer';
 import { useCartStore } from '@/features/cart/cart.store';
 import { ResetDemoDialog } from '@/features/demo/ResetDemo';
+import { useWishlistStore } from '@/features/wishlist/wishlist.store';
 import { onDemoReset } from '@/lib/demo';
 import { MobileNavDrawer } from './MobileNavDrawer';
 
@@ -21,18 +22,23 @@ import { MobileNavDrawer } from './MobileNavDrawer';
 export function AppProviders({ children }: { children: ReactNode }) {
   const locale = useLocale();
   const t = useTranslations('cart');
+  const tWishlist = useTranslations('wishlist');
   const overlayCount = useOverlayStore((s) => s.count);
   const hydrate = useCartStore((s) => s.hydrate);
   const closeDrawer = useCartStore((s) => s.closeDrawer);
   const syncErrors = useCartStore((s) => s.syncErrors);
+  const hydrateWishlist = useWishlistStore((s) => s.hydrate);
+  const wishlistErrors = useWishlistStore((s) => s.syncErrors);
 
   useEffect(() => {
     void hydrate();
+    void hydrateWishlist();
     return onDemoReset(() => {
       closeDrawer();
       void hydrate();
+      void hydrateWishlist();
     });
-  }, [hydrate, closeDrawer]);
+  }, [hydrate, hydrateWishlist, closeDrawer]);
 
   useEffect(() => {
     const known = LOCALES.find((l) => l === locale);
@@ -46,6 +52,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (syncErrors > 0) toast.error(t('updateFailed'));
   }, [syncErrors, t]);
+
+  useEffect(() => {
+    if (wishlistErrors > 0) toast.error(tWishlist('updateFailed'));
+  }, [wishlistErrors, tWishlist]);
 
   return (
     <>

@@ -5,9 +5,12 @@ export type SortKey = 'featured' | 'newest' | 'price-asc' | 'price-desc' | 'rati
 export interface CatalogQuery {
   q?: string;
   categories?: readonly CategoryId[];
-  /** EU sizes; matches products that have stock in ANY of them. */
+  /** EU sizes; matches products that have a colour in stock in ANY of them. */
   sizes?: readonly number[];
+  /** Colour ids; matches products that come in ANY of them. */
   colors?: readonly string[];
+  /** Only products with at least one pair in stock (in a selected colour/size when those are set). */
+  inStock?: boolean;
   minPrice?: number;
   maxPrice?: number;
   collection?: string;

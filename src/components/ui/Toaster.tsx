@@ -65,7 +65,7 @@ export function Toaster() {
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none fixed inset-x-0 bottom-4 z-toast flex flex-col items-center gap-2 px-4"
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--toast-offset,0px)+1rem)] z-toast flex flex-col items-center gap-2 px-4"
     >
       {toasts.map((item) => (
         <ToastCard key={item.id} item={item} />

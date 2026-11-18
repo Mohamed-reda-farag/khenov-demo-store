@@ -1,3 +1,4 @@
+import { findColor, sizeStock } from '@/data/stock';
 import type { CartLine, Product } from '@/data/types';
 
 /** Per-line quantity cap (also bounded by the stock of the chosen size). */
@@ -6,11 +7,21 @@ export const MAX_PER_LINE = 10;
 export const lineId = (productId: string, colorId: string, size: number): string =>
   `${productId}:${colorId}:${size}`;
 
+/** Largest quantity a colour + size can be bought in. */
+export function maxQuantityFor(product: Product, colorId: string, size: number): number {
+  return Math.min(sizeStock(findColor(product, colorId), size), MAX_PER_LINE);
+}
+
 /** Builds a cart line for a chosen colour + size, or null when that choice is unavailable. */
-export function buildLine(product: Product, colorId: string, size: number): CartLine | null {
-  const color = product.colors.find((c) => c.id === colorId);
-  const stock = product.sizes.find((s) => s.size === size)?.stock ?? 0;
-  if (!color || stock <= 0) return null;
+export function buildLine(
+  product: Product,
+  colorId: string,
+  size: number,
+  quantity = 1,
+): CartLine | null {
+  const color = findColor(product, colorId);
+  const max = maxQuantityFor(product, colorId, size);
+  if (!color || max <= 0) return null;
   return {
     id: lineId(product.id, color.id, size),
     productId: product.id,
@@ -21,9 +32,9 @@ export function buildLine(product: Product, colorId: string, size: number): Cart
     colorName: color.name,
     colorHex: color.hex,
     size,
-    quantity: 1,
+    quantity: Math.min(Math.max(1, Math.floor(quantity)), max),
     unitPriceEGP: product.priceEGP,
-    maxQuantity: Math.min(stock, MAX_PER_LINE),
+    maxQuantity: max,
   };
 }
 
@@ -37,8 +48,9 @@ export function addLine(
   const existing = lines.find((l) => l.id === line.id);
   if (!existing) return { lines: [...lines, line], result: 'added' };
   if (existing.quantity >= existing.maxQuantity) return { lines: [...lines], result: 'capped' };
+  const quantity = Math.min(existing.quantity + line.quantity, existing.maxQuantity);
   return {
-    lines: lines.map((l) => (l.id === line.id ? { ...l, quantity: l.quantity + 1 } : l)),
+    lines: lines.map((l) => (l.id === line.id ? { ...l, quantity } : l)),
     result: 'merged',
   };
 }

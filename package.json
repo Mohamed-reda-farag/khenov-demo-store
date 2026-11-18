@@ -2,13 +2,14 @@
   "name": "khenov-demo-store",
   "version": "0.1.0",
   "private": true,
-  "description": "ATHAR — fictional footwear store. A KHENOV portfolio demo (static, no backend).",
+  "description": "ATHAR \u2014 fictional footwear store. A KHENOV portfolio demo (static, no backend).",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "size": "tsx scripts/report-build-size.ts",
     "preview": "serve out -l 4173",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

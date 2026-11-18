@@ -78,3 +78,8 @@ Also update `PROJECT_STATE.md` in the repo root (done / next / decisions / how t
 - Demo switches: `?demo=fast` (no simulated delay), `?demo=error` (every simulated request fails), `?demo=off` (clears both).
 - Architecture is enforced by ESLint: UI code may not touch `localStorage`/`sessionStorage`, import `@/lib/demo/storage`, or import `@/data/seed` — it must go through `@/data/repository`.
 - Photos: real photos are optional; until they exist a generated placeholder is shown (see `docs/IMAGES.md`).
+- Build-time exception to the seed rule: `@/data/repository/catalog.static` gives `generateStaticParams` and `generateMetadata` synchronous, delay-free reads. Runtime UI must use the async repositories.
+- Stock is per colour and size (`Product.colors[].sizes`). Photos are per product, so a colour swatch changes availability and the placeholder tint, not the photograph.
+- Shop state lives in the URL (`q, category, size, color, min, max, stock, sale, new, sort, page`); `src/features/shop/shop-params.ts` is the only place that parses or writes it.
+- Overlays render through `Portal` (outside `#app-shell`, which goes `inert` while one is open). Only the topmost overlay reacts to Esc/Tab.
+- Reviews are fictional samples, labelled as such. No "verified buyer" claims, no real people, no structured data (JSON-LD) is emitted.

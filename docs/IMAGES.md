@@ -10,8 +10,8 @@ silhouette on a studio background). Real photos replace the placeholders automat
 2. **No brands:** choose photos where no logo, swoosh, stripe pattern or wordmark is clearly visible.
 3. **Shoes only:** no faces, no recognisable people. A plain or studio background looks best.
 4. **Size:** at least **1600 px** on the long side. Portrait or square is best (the site crops to 4:5).
-5. **Quantity:** `-1` is required for each product (24 files minimum). `-2` to `-4` are optional extra
-   angles that fill the gallery on the product page. Start with `-1` only.
+5. **Quantity:** `-1` is required for each product (24 files minimum). `-2` to `-6` are optional extra
+   angles. The product page gallery shows them all; the shop card shows `-2` when you hover it.
 6. The shoe colour does not have to match the fictional colour exactly; closer is nicer.
 
 ## Naming and placement
@@ -71,5 +71,5 @@ Then check the result with `npm run dev`, and commit `public\images` and `src\da
 
 ## Credits
 
-Keep a record in `docs/IMAGE_CREDITS.md` (filename, photographer, link). It is not legally required
+Keep a record in `docs/IMAGE_CREDITS.md` (filename, photographer, link); the file already lists every expected filename. It is not legally required
 by either licence, but it is good practice and makes the portfolio pack easier to write.

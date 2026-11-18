@@ -1,5 +1,5 @@
 import { normalizeSearch } from '@/lib/text';
-import type { Category, Product } from '../types';
+import type { Category, ColorOption, Product, ProductColor } from '../types';
 import type { CatalogFacets, CatalogPage, CatalogQuery, SortKey, Suggestion } from './catalog';
 
 export const DEFAULT_PAGE_SIZE = 12;
@@ -22,6 +22,17 @@ function searchHaystack(product: Product, categories: readonly Category[]): stri
   );
 }
 
+/** A colourway matches when it satisfies the colour, size and stock filters together. */
+function colorMatches(color: ProductColor, query: CatalogQuery, skip?: FacetKey): boolean {
+  if (skip !== 'colors' && query.colors?.length && !query.colors.includes(color.id)) return false;
+  const hasStock = color.sizes.some((s) => s.stock > 0);
+  if (query.inStock && !hasStock) return false;
+  if (skip !== 'sizes' && query.sizes?.length) {
+    return color.sizes.some((s) => s.stock > 0 && query.sizes?.includes(s.size));
+  }
+  return true;
+}
+
 function matches(
   product: Product,
   query: CatalogQuery,
@@ -41,25 +52,23 @@ function matches(
   if (skip !== 'categories' && query.categories?.length) {
     if (!query.categories.includes(product.categoryId)) return false;
   }
-  if (skip !== 'colors' && query.colors?.length) {
-    if (!product.colors.some((c) => query.colors?.includes(c.id))) return false;
-  }
-  if (skip !== 'sizes' && query.sizes?.length) {
-    if (!product.sizes.some((s) => s.stock > 0 && query.sizes?.includes(s.size))) return false;
-  }
   if (skip !== 'price') {
     if (query.minPrice !== undefined && product.priceEGP < query.minPrice) return false;
     if (query.maxPrice !== undefined && product.priceEGP > query.maxPrice) return false;
   }
-  return true;
+  return product.colors.some((color) => colorMatches(color, query, skip));
 }
 
 const sorters: Record<SortKey, (a: Product, b: Product) => number> = {
-  featured: (a, b) => Number(b.isFeatured) - Number(a.isFeatured) || b.reviewCount - a.reviewCount,
-  newest: (a, b) => b.createdAt.localeCompare(a.createdAt),
-  'price-asc': (a, b) => a.priceEGP - b.priceEGP,
-  'price-desc': (a, b) => b.priceEGP - a.priceEGP,
-  rating: (a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount,
+  featured: (a, b) =>
+    Number(b.isFeatured) - Number(a.isFeatured) ||
+    b.reviewCount - a.reviewCount ||
+    a.id.localeCompare(b.id),
+  newest: (a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id),
+  'price-asc': (a, b) => a.priceEGP - b.priceEGP || a.id.localeCompare(b.id),
+  'price-desc': (a, b) => b.priceEGP - a.priceEGP || a.id.localeCompare(b.id),
+  rating: (a, b) =>
+    b.rating - a.rating || b.reviewCount - a.reviewCount || a.id.localeCompare(b.id),
 };
 
 function computeFacets(
@@ -74,25 +83,44 @@ function computeFacets(
     categoryCounts.set(p.categoryId, (categoryCounts.get(p.categoryId) ?? 0) + 1),
   );
 
-  const colorCounts = new Map<string, { color: Product['colors'][number]; count: number }>();
+  // Every colour in the catalogue is listed (count 0 included) so an active colour chip always
+  // has a name, and the UI can show an option as unavailable instead of dropping it.
+  const colorCounts = new Map<string, { color: ColorOption; count: number }>();
+  all.forEach((p) =>
+    p.colors.forEach((color) => {
+      if (!colorCounts.has(color.id)) {
+        colorCounts.set(color.id, {
+          color: { id: color.id, name: color.name, hex: color.hex },
+          count: 0,
+        });
+      }
+    }),
+  );
   forFacet('colors').forEach((p) =>
     p.colors.forEach((color) => {
       const entry = colorCounts.get(color.id);
-      colorCounts.set(color.id, { color, count: (entry?.count ?? 0) + 1 });
+      if (entry && colorMatches(color, query, 'colors')) entry.count += 1;
     }),
   );
 
   const sizeCounts = new Map<number, number>();
-  forFacet('sizes').forEach((p) =>
-    p.sizes.forEach((s) => {
-      if (s.stock > 0) sizeCounts.set(s.size, (sizeCounts.get(s.size) ?? 0) + 1);
-    }),
-  );
+  forFacet('sizes').forEach((p) => {
+    const sizes = new Set<number>();
+    p.colors.forEach((color) => {
+      if (!colorMatches(color, query, 'sizes')) return;
+      color.sizes.forEach((s) => {
+        if (s.stock > 0) sizes.add(s.size);
+      });
+    });
+    sizes.forEach((size) => sizeCounts.set(size, (sizeCounts.get(size) ?? 0) + 1));
+  });
 
   const prices = all.map((p) => p.priceEGP);
   return {
     categories: categories.map((c) => ({ id: c.id, count: categoryCounts.get(c.id) ?? 0 })),
-    colors: [...colorCounts.values()].sort((a, b) => b.count - a.count),
+    colors: [...colorCounts.values()].sort(
+      (a, b) => b.count - a.count || a.color.id.localeCompare(b.color.id),
+    ),
     sizes: [...sizeCounts.entries()]
       .map(([size, count]) => ({ size, count }))
       .sort((a, b) => a.size - b.size),

@@ -25,6 +25,7 @@ export async function generateMetadata({
   if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: 'meta' });
   return {
+    metadataBase: new URL(process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000'),
     title: t('title'),
     description: t('description'),
     icons: { icon: '/favicon.svg' },

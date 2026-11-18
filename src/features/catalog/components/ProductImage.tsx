@@ -17,6 +17,8 @@ interface ProductImageProps {
   priority?: boolean;
   /** Slow scale-up when a parent with the `group` class is hovered. */
   zoom?: boolean;
+  /** Fill the parent (which must be positioned) instead of owning a 4:5 box. */
+  fill?: boolean;
   className?: string;
 }
 
@@ -33,6 +35,7 @@ export function ProductImage({
   sizes,
   priority = false,
   zoom = false,
+  fill = false,
   className = '',
 }: ProductImageProps) {
   const hasPhoto = photoCount(slug) > index;
@@ -40,7 +43,9 @@ export function ProductImage({
   const motion = zoom ? 'transition-transform dur-slow ease-brand group-hover:scale-105' : '';
 
   return (
-    <div className={`relative aspect-[4/5] overflow-hidden bg-canvas ${className}`}>
+    <div
+      className={`overflow-hidden bg-canvas ${fill ? 'absolute inset-0' : 'relative aspect-[4/5]'} ${className}`}
+    >
       {hasPhoto ? (
         <Image
           src={photoSrc(slug, index)}
@@ -48,6 +53,7 @@ export function ProductImage({
           fill
           sizes={sizes}
           priority={priority}
+          fetchPriority={priority ? 'high' : undefined}
           className={`object-cover ${motion}`}
         />
       ) : (

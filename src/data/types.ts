@@ -3,7 +3,8 @@ export type Locale = (typeof LOCALES)[number];
 
 export type LocaleText = Readonly<Record<Locale, string>>;
 
-export type CategoryId = 'sneakers' | 'running' | 'boots' | 'sandals' | 'classic';
+export const CATEGORY_IDS = ['sneakers', 'running', 'boots', 'sandals', 'classic'] as const;
+export type CategoryId = (typeof CATEGORY_IDS)[number];
 
 /** Which generated silhouette represents a category while real photos are missing. */
 export type Silhouette = 'sneaker' | 'runner' | 'boot' | 'sandal' | 'loafer';
@@ -13,6 +14,8 @@ export interface Category {
   slug: string;
   name: LocaleText;
   blurb: LocaleText;
+  /** Slug of the product whose photo represents this category on the home page. */
+  coverSlug: string;
 }
 
 export interface Collection {
@@ -34,6 +37,11 @@ export interface SizeStock {
   stock: number;
 }
 
+/** A colourway. Stock is tracked per colour and size, so availability changes with the colour. */
+export interface ProductColor extends ColorOption {
+  sizes: readonly SizeStock[];
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -46,9 +54,8 @@ export interface Product {
   materials: LocaleText;
   priceEGP: number;
   compareAtPriceEGP?: number;
-  /** First color is the "photographed" one. */
-  colors: readonly ColorOption[];
-  sizes: readonly SizeStock[];
+  /** First colour is the one the placeholder art and the card start with. */
+  colors: readonly ProductColor[];
   rating: number;
   reviewCount: number;
   isNew: boolean;
@@ -69,6 +76,21 @@ export interface Banner {
   href: string;
   tone: 'sand' | 'sage' | 'blush' | 'stone' | 'mist' | 'ink';
   silhouette: Silhouette;
+  /** Product whose photo is shown on the banner (falls back to the silhouette). */
+  productSlug?: string;
+}
+
+/** A fictional sample review. The summary numbers come from the product, not from these. */
+export interface Review {
+  id: string;
+  productId: string;
+  author: LocaleText;
+  /** 1..5 */
+  rating: number;
+  title: LocaleText;
+  body: LocaleText;
+  /** ISO date. */
+  date: string;
 }
 
 /** Minimal product data copied into a cart line so the cart renders without a catalog lookup. */

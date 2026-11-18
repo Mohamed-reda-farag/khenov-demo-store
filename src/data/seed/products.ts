@@ -1,9 +1,9 @@
-import type { LocaleText, Product, SizeStock } from '../types';
+import type { LocaleText, Product, ProductColor, SizeStock } from '../types';
 import { COLORS, type ColorKey } from './catalog-meta';
 
 /* ---------- deterministic stock generation (same result on every build) ---------- */
 
-type StockProfile = 'normal' | 'scarce';
+type StockProfile = 'normal' | 'scarce' | 'soldout';
 
 function lcg(seed: number): () => number {
   let state = seed % 2147483647;
@@ -21,6 +21,10 @@ function buildSizes(
 ): SizeStock[] {
   const next = lcg(seed);
   const sizes: SizeStock[] = [];
+  if (profile === 'soldout') {
+    for (let size = range[0]; size <= range[1]; size += 1) sizes.push({ size, stock: 0 });
+    return sizes;
+  }
   for (let size = range[0]; size <= range[1]; size += 1) {
     const roll = next();
     let stock: number;
@@ -68,7 +72,22 @@ interface ProductInput {
   isNew?: boolean;
   featured?: boolean;
   createdAt: string;
+  /** Stock shape for every colour. 'soldout' empties the whole product. */
   profile?: StockProfile;
+  /** Colours that are sold out in every size while the others stay available. */
+  soldOutColors?: readonly ColorKey[];
+}
+
+/** Each colour gets its own deterministic stock so availability really changes with the swatch. */
+function buildColors(input: ProductInput, index: number): ProductColor[] {
+  return input.colors.map((key, colorIndex) => {
+    const soldOut = input.profile === 'soldout' || input.soldOutColors?.includes(key);
+    const profile: StockProfile = soldOut ? 'soldout' : (input.profile ?? 'normal');
+    return {
+      ...COLORS[key],
+      sizes: buildSizes(input.sizeRange, 7919 * (index + 3) + colorIndex * 104729, profile),
+    };
+  });
 }
 
 function product(input: ProductInput, index: number): Product {
@@ -85,8 +104,7 @@ function product(input: ProductInput, index: number): Product {
     materials: input.materials,
     priceEGP: input.price,
     ...(input.compareAt ? { compareAtPriceEGP: input.compareAt } : {}),
-    colors: input.colors.map((key) => COLORS[key]),
-    sizes: buildSizes(input.sizeRange, 7919 * (index + 3), input.profile ?? 'normal'),
+    colors: buildColors(input, index),
     rating: input.rating,
     reviewCount: input.reviews,
     isNew: input.isNew ?? false,
@@ -135,6 +153,7 @@ const INPUTS: readonly ProductInput[] = [
     reviews: 148,
     featured: true,
     createdAt: '2026-08-19',
+    soldOutColors: ['ivory'],
   },
   {
     slug: 'corniche-hi',
@@ -153,6 +172,7 @@ const INPUTS: readonly ProductInput[] = [
     rating: 4.5,
     reviews: 96,
     createdAt: '2026-06-02',
+    soldOutColors: ['ivory'],
   },
   {
     slug: 'souk-canvas',
@@ -287,6 +307,7 @@ const INPUTS: readonly ProductInput[] = [
     rating: 4.2,
     reviews: 240,
     createdAt: '2026-02-23',
+    soldOutColors: ['cobalt'],
   },
   {
     slug: 'marathon-pro',
@@ -328,6 +349,7 @@ const INPUTS: readonly ProductInput[] = [
     rating: 4.6,
     reviews: 73,
     createdAt: '2026-09-15',
+    soldOutColors: ['black'],
   },
   {
     slug: 'atlas-chelsea',
@@ -561,6 +583,7 @@ const INPUTS: readonly ProductInput[] = [
     rating: 4.3,
     reviews: 58,
     createdAt: '2026-02-10',
+    profile: 'soldout',
   },
 ];
 

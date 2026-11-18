@@ -1,74 +1,120 @@
 'use client';
 
-import { Star } from 'lucide-react';
+import { Eye, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { photoCount } from '@/data/images';
+import { isProductSoldOut } from '@/data/stock';
 import type { Product } from '@/data/types';
+import { QuickView } from '@/features/product/QuickView';
+import { WishlistButton } from '@/features/wishlist/WishlistButton';
+import { Link } from '@/i18n/navigation';
 import { useFormat } from '@/lib/hooks/useFormat';
 import { Price } from './Price';
 import { ProductImage } from './ProductImage';
 
-export function ProductCard({
-  product,
-  priority = false,
-}: {
-  product: Product;
-  priority?: boolean;
-}) {
+const IMAGE_SIZES = '(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 48vw';
+
+export function ProductCard({ product }: { product: Product }) {
   const format = useFormat();
   const t = useTranslations('product');
+  const [quickOpen, setQuickOpen] = useState(false);
   const name = format.text(product.name);
-  const firstColor = product.colors[0];
+  const color = product.colors[0];
+  const colorHex = color?.hex ?? '#8f8e89';
+  const soldOut = isProductSoldOut(product);
+  const percent = format.discount(product.priceEGP, product.compareAtPriceEGP);
+  const hasSecond = photoCount(product.slug) > 1;
 
   return (
-    <article className="group flex flex-col gap-3">
-      <div className="relative">
+    <article className="group relative flex flex-col gap-3">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-md bg-canvas">
         <ProductImage
+          fill
           slug={product.slug}
           categoryId={product.categoryId}
-          alt={name}
-          colorHex={firstColor?.hex ?? '#8f8e89'}
-          sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 48vw"
-          priority={priority}
-          zoom
+          alt=""
+          colorHex={colorHex}
+          sizes={IMAGE_SIZES}
+          zoom={!hasSecond}
         />
-        {product.isNew ? (
-          <div className="absolute start-3 top-3">
-            <Badge tone="dark">{t('newBadge')}</Badge>
+        {hasSecond ? (
+          <div className="absolute inset-0 opacity-0 transition-opacity dur-slow ease-brand group-hover:opacity-100">
+            <ProductImage
+              fill
+              slug={product.slug}
+              categoryId={product.categoryId}
+              alt=""
+              colorHex={colorHex}
+              index={1}
+              sizes={IMAGE_SIZES}
+            />
           </div>
         ) : null}
+
+        <div className="pointer-events-none absolute start-3 top-3 flex flex-col items-start gap-1.5">
+          {soldOut ? <Badge tone="dark">{t('soldOut')}</Badge> : null}
+          {!soldOut && product.isNew ? <Badge tone="dark">{t('newBadge')}</Badge> : null}
+          {percent > 0 ? (
+            <Badge tone="accent">{t('discountBadge', { percent: format.percent(percent) })}</Badge>
+          ) : null}
+        </div>
+
+        <WishlistButton productId={product.id} name={name} className="absolute end-2 top-2 z-10" />
+        <button
+          type="button"
+          aria-label={t('quickView', { name })}
+          aria-haspopup="dialog"
+          onClick={() => setQuickOpen(true)}
+          className="absolute end-2 bottom-2 z-10 grid size-11 place-items-center rounded-full bg-paper/90 text-ink-900 shadow-soft transition-opacity dur-fast hover:bg-paper focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
+        >
+          <Eye aria-hidden className="size-5" />
+        </button>
       </div>
+
       <div className="flex flex-col gap-1">
-        <h3 className="font-display text-base font-medium">{name}</h3>
+        <h3 className="font-display text-base font-medium">
+          <Link
+            href={`/product/${product.slug}`}
+            className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-offset-8"
+          >
+            {name}
+          </Link>
+        </h3>
         <p className="text-sm text-ink-500">{format.text(product.tagline)}</p>
         <div className="flex items-center justify-between gap-2 pt-1 text-sm">
           <Price amount={product.priceEGP} compareAt={product.compareAtPriceEGP} />
           <span
             className="inline-flex items-center gap-1 text-xs text-ink-500"
+            role="img"
             aria-label={t('ratingLabel', {
               rating: format.rating(product.rating),
               countText: format.number(product.reviewCount),
             })}
           >
             <Star aria-hidden className="size-3.5 fill-accent-500 text-accent-500" />
-            {format.rating(product.rating)}
+            <span aria-hidden>{format.rating(product.rating)}</span>
           </span>
         </div>
-        {/* Spacer keeps swatches aligned across cards */}
         <ul
           className="flex items-center gap-1.5 pt-1"
-          aria-label={product.colors.map((c) => format.text(c.name)).join(', ')}
+          aria-label={t('colorsLabel', {
+            colors: product.colors.map((c) => format.text(c.name)).join(', '),
+          })}
         >
-          {product.colors.map((color) => (
+          {product.colors.map((c) => (
             <li
-              key={color.id}
+              key={c.id}
               className="size-3.5 rounded-full border border-sand-300"
-              style={{ backgroundColor: color.hex }}
+              style={{ backgroundColor: c.hex }}
             />
           ))}
         </ul>
       </div>
+
+      <QuickView product={product} open={quickOpen} onClose={() => setQuickOpen(false)} />
     </article>
   );
 }
@@ -76,7 +122,7 @@ export function ProductCard({
 export function ProductCardSkeleton() {
   return (
     <div className="flex flex-col gap-3" aria-hidden>
-      <Skeleton className="aspect-[4/5] w-full rounded-none" />
+      <Skeleton className="aspect-[4/5] w-full rounded-md" />
       <Skeleton className="h-4 w-2/3" />
       <Skeleton className="h-3 w-full" />
       <Skeleton className="h-3 w-1/3" />

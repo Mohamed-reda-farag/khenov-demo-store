@@ -16,6 +16,9 @@ export const useOverlayStore = create<OverlayStore>((set) => ({
   pop: () => set((s) => ({ count: Math.max(0, s.count - 1) })),
 }));
 
+/** Open overlays, bottom to top. Only the top one reacts to Escape and Tab. */
+const stack: object[] = [];
+
 const FOCUSABLE = [
   'a[href]',
   'button:not([disabled])',
@@ -43,6 +46,8 @@ export function useOverlayBehavior(
     if (!open) return;
     const { push, pop } = useOverlayStore.getState();
     push();
+    const token = {};
+    stack.push(token);
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
     // Wait one frame so the panel has lost `inert` before we move focus into it.
@@ -56,6 +61,7 @@ export function useOverlayBehavior(
     });
 
     function onKeyDown(event: KeyboardEvent) {
+      if (stack[stack.length - 1] !== token) return;
       if (event.key === 'Escape') {
         event.stopPropagation();
         onCloseRef.current();
@@ -88,8 +94,14 @@ export function useOverlayBehavior(
     return () => {
       cancelAnimationFrame(frame);
       document.removeEventListener('keydown', onKeyDown);
+      stack.splice(stack.indexOf(token), 1);
       pop();
-      previous?.focus?.();
+      // The shell is still `inert` until React commits the count change, and focus() on an inert
+      // element is a no-op. Restore on the next frame, and only where focus can actually go
+      // (a trigger inside another open overlay, or the page once the last overlay is gone).
+      requestAnimationFrame(() => {
+        if (previous?.isConnected && !previous.closest('[inert]')) previous.focus();
+      });
     };
   }, [open, panelRef]);
 }

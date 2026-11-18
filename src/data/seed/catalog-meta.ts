@@ -20,30 +20,35 @@ export const CATEGORIES: readonly Category[] = [
     slug: 'sneakers',
     name: { ar: 'سنيكرز', en: 'Sneakers' },
     blurb: { ar: 'للمشي اليومي بأناقة هادئة', en: 'Everyday pairs with a quiet confidence' },
+    coverSlug: 'nile-low',
   },
   {
     id: 'running',
     slug: 'running',
     name: { ar: 'جري', en: 'Running' },
     blurb: { ar: 'خفة وتثبيت لكل كيلومتر', en: 'Light, stable, built for every kilometre' },
+    coverSlug: 'sprint-delta',
   },
   {
     id: 'boots',
     slug: 'boots',
     name: { ar: 'بوت', en: 'Boots' },
     blurb: { ar: 'جلد متين لأيام الشتاء', en: 'Hard-wearing leather for cooler days' },
+    coverSlug: 'atlas-chelsea',
   },
   {
     id: 'sandals',
     slug: 'sandals',
     name: { ar: 'صنادل', en: 'Sandals' },
     blurb: { ar: 'راحة مفتوحة للشمس والبحر', en: 'Open comfort for sun and sea' },
+    coverSlug: 'dahab-strap',
   },
   {
     id: 'classic',
     slug: 'classic',
     name: { ar: 'كلاسيك', en: 'Classics' },
     blurb: { ar: 'تفاصيل راقية للمكتب والمناسبات', en: 'Refined shapes for work and occasions' },
+    coverSlug: 'zamalek-loafer',
   },
 ];
 
@@ -87,9 +92,10 @@ export const BANNERS: readonly Banner[] = [
       en: 'A sand-and-honey collection for sunny winter days',
     },
     cta: { ar: 'اكتشف المجموعة', en: 'Explore the collection' },
-    href: '/shop?collection=desert-light',
+    href: '/collection/desert-light',
     tone: 'sand',
     silhouette: 'sneaker',
+    productSlug: 'dune-court',
   },
   {
     id: 'strip-shipping',
@@ -116,6 +122,7 @@ export const BANNERS: readonly Banner[] = [
     href: '/shop',
     tone: 'blush',
     silhouette: 'loafer',
+    productSlug: 'zamalek-loafer',
   },
   {
     id: 'tile-running',
@@ -126,8 +133,9 @@ export const BANNERS: readonly Banner[] = [
       en: 'Start your season in something lighter and steadier',
     },
     cta: { ar: 'شاهد الجري', en: 'See running' },
-    href: '/shop?category=running',
+    href: '/category/running?sort=newest',
     tone: 'mist',
     silhouette: 'runner',
+    productSlug: 'sprint-delta',
   },
 ];

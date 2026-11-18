@@ -124,7 +124,7 @@ export function MegaNav() {
                     {nav.data.categories.map((c) => (
                       <li key={c.id}>
                         <Link
-                          href={`/shop?category=${c.slug}`}
+                          href={`/category/${c.slug}`}
                           onClick={() => setOpen(false)}
                           className="inline-flex min-h-11 items-center hover:underline"
                         >
@@ -142,7 +142,7 @@ export function MegaNav() {
                     {nav.data.collections.map((c) => (
                       <li key={c.id}>
                         <Link
-                          href={`/shop?collection=${c.slug}`}
+                          href={`/collection/${c.slug}`}
                           onClick={() => setOpen(false)}
                           className="inline-flex min-h-11 items-center hover:underline"
                         >
@@ -178,7 +178,7 @@ export function MegaNav() {
         </div>
       </div>
 
-      <Link href="/shop?sort=newest" className={linkClass}>
+      <Link href="/shop?new=1&sort=newest" className={linkClass}>
         {t('newIn')}
       </Link>
       <Link href="/shop?sale=1" className={linkClass}>

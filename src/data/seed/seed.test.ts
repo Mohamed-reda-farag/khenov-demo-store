@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { BANNERS, CATEGORIES, COLLECTIONS, PRODUCTS } from './index';
+import { allSizes, colorHasStock, isProductSoldOut, stockLevel } from '../stock';
+import { BANNERS, CATEGORIES, COLLECTIONS, PRODUCTS, REVIEWS } from './index';
 
 describe('seed data integrity', () => {
   it('has the agreed shape: 24 products, 5 categories, collections, banners', () => {
@@ -37,22 +38,56 @@ describe('seed data integrity', () => {
       expect(p.rating).toBeGreaterThanOrEqual(1);
       expect(p.rating).toBeLessThanOrEqual(5);
       expect(p.colors.length).toBeGreaterThanOrEqual(2);
-      expect(p.sizes.length).toBeGreaterThanOrEqual(7);
-      expect(p.sizes.some((s) => s.stock > 0)).toBe(true);
-      expect(p.sizes.every((s) => Number.isInteger(s.stock) && s.stock >= 0)).toBe(true);
+      expect(allSizes(p).length).toBeGreaterThanOrEqual(7);
+      for (const color of p.colors) {
+        expect(color.sizes.length).toBe(allSizes(p).length);
+        expect(color.sizes.every((s) => Number.isInteger(s.stock) && s.stock >= 0)).toBe(true);
+      }
     }
   });
 
+  it('keeps every product buyable except the deliberate sold-out scenarios', () => {
+    const soldOutProducts = PRODUCTS.filter(isProductSoldOut).map((p) => p.slug);
+    expect(soldOutProducts).toEqual(['garden-city-mule']);
+    const partlySoldOut = PRODUCTS.filter(
+      (p) => !isProductSoldOut(p) && p.colors.some((c) => !colorHasStock(c)),
+    );
+    expect(partlySoldOut.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('references real cover products from categories and banners', () => {
+    const slugs = new Set(PRODUCTS.map((p) => p.slug));
+    CATEGORIES.forEach((c) => expect(slugs.has(c.coverSlug)).toBe(true));
+    BANNERS.forEach((b) => {
+      if (b.productSlug) expect(slugs.has(b.productSlug)).toBe(true);
+    });
+  });
+
+  it('has fictional sample reviews for every product, dated after the product exists', () => {
+    for (const p of PRODUCTS) {
+      const own = REVIEWS.filter((r) => r.productId === p.id);
+      expect(own).toHaveLength(3);
+      own.forEach((r) => {
+        expect(r.rating).toBeGreaterThanOrEqual(1);
+        expect(r.rating).toBeLessThanOrEqual(5);
+        expect(r.date >= p.createdAt).toBe(true);
+        expect(r.date <= '2026-11-16').toBe(true);
+        expect(r.author.ar + r.author.en + r.body.ar + r.body.en).not.toMatch(/verified|موثق/i);
+      });
+    }
+    expect(new Set(REVIEWS.map((r) => r.id)).size).toBe(REVIEWS.length);
+  });
+
   it('exercises every stock state somewhere (sold out, low, healthy)', () => {
-    const stocks = PRODUCTS.flatMap((p) => p.sizes.map((s) => s.stock));
-    expect(stocks.some((s) => s === 0)).toBe(true);
-    expect(stocks.some((s) => s >= 1 && s <= 3)).toBe(true);
-    expect(stocks.some((s) => s >= 8)).toBe(true);
+    const levels = new Set(
+      PRODUCTS.flatMap((p) => p.colors.flatMap((c) => c.sizes.map((s) => stockLevel(s.stock)))),
+    );
+    expect(levels).toEqual(new Set(['out', 'low', 'in']));
   });
 
   it('is deterministic between evaluations', () => {
-    expect(PRODUCTS[0]?.sizes).toEqual(PRODUCTS[0]?.sizes);
     expect(JSON.stringify(PRODUCTS)).toBe(JSON.stringify(PRODUCTS));
+    expect(JSON.stringify(REVIEWS)).toBe(JSON.stringify(REVIEWS));
   });
 
   it('contains no real brand names', () => {

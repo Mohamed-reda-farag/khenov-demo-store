@@ -46,7 +46,7 @@ export function MobileNavDrawer() {
             {nav.data.categories.map((c) => (
               <Link
                 key={c.id}
-                href={`/shop?category=${c.slug}`}
+                href={`/category/${c.slug}`}
                 onClick={close}
                 className={`${rowClass} ps-4 text-ink-700`}
               >
@@ -55,7 +55,7 @@ export function MobileNavDrawer() {
             ))}
           </>
         )}
-        <Link href="/shop?sort=newest" onClick={close} className={rowClass}>
+        <Link href="/shop?new=1&sort=newest" onClick={close} className={rowClass}>
           {t('newIn')}
         </Link>
         <Link href="/shop?sale=1" onClick={close} className={rowClass}>

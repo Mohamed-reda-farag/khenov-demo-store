@@ -1,10 +1,12 @@
 'use client';
 
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
 import { buttonClasses } from '@/components/ui/Button';
 import { Drawer } from '@/components/ui/Drawer';
 import { IconButton } from '@/components/ui/IconButton';
+import { QuantityStepper } from '@/components/ui/QuantityStepper';
 import { toast } from '@/components/ui/toast';
 import type { CartLine } from '@/data/types';
 import { ProductImage } from '@/features/catalog/components/ProductImage';
@@ -59,33 +61,65 @@ function CartLineRow({ line }: { line: CartLine }) {
           </IconButton>
         </div>
         <div className="flex items-center justify-between">
-          <div
-            role="group"
-            aria-label={t('quantity')}
-            className="flex items-center rounded-pill border border-sand-300"
-          >
-            <IconButton
-              label={t('decrease')}
-              disabled={line.quantity <= 1}
-              onClick={() => setQuantity(line.id, line.quantity - 1)}
-            >
-              <Minus aria-hidden className="size-4" />
-            </IconButton>
-            <span aria-live="polite" className="min-w-6 text-center text-sm font-medium">
-              {format.number(line.quantity)}
-            </span>
-            <IconButton
-              label={t('increase')}
-              disabled={line.quantity >= line.maxQuantity}
-              onClick={() => setQuantity(line.id, line.quantity + 1)}
-            >
-              <Plus aria-hidden className="size-4" />
-            </IconButton>
-          </div>
+          <QuantityStepper
+            value={line.quantity}
+            max={line.maxQuantity}
+            onChange={(quantity) => setQuantity(line.id, quantity)}
+          />
           <span className="font-semibold">{format.price(line.unitPriceEGP * line.quantity)}</span>
         </div>
       </div>
     </li>
+  );
+}
+
+const NOTICE_MS = 8000;
+
+/** Shown at the top of the drawer right after an add, with Undo. */
+function AddedNotice() {
+  const t = useTranslations('cart');
+  const format = useFormat();
+  const lastAdded = useCartStore((s) => s.lastAdded);
+  const undoAdd = useCartStore((s) => s.undoAdd);
+  const clear = useCartStore((s) => s.clearLastAdded);
+  const token = lastAdded?.token;
+
+  useEffect(() => {
+    if (token === undefined) return;
+    const timer = setTimeout(clear, NOTICE_MS);
+    return () => clearTimeout(timer);
+  }, [token, clear]);
+
+  if (!lastAdded) return null;
+  const { line } = lastAdded;
+  const name = format.text(line.name);
+  return (
+    <div
+      role="status"
+      className="mx-6 mt-4 flex items-start gap-3 rounded-md bg-success-100 p-4 text-sm text-ink-900"
+    >
+      <CheckCircle2 aria-hidden className="mt-0.5 size-5 shrink-0 text-success-600" />
+      <div className="min-w-0 flex-1">
+        <p className="font-medium">{t('added', { name })}</p>
+        <p className="text-ink-700">
+          {t('addedDetail', {
+            color: format.text(line.colorName),
+            size: format.number(line.size),
+            quantity: format.number(line.quantity),
+          })}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={() => {
+          undoAdd();
+          toast.success(t('addUndone'));
+        }}
+        className="inline-flex min-h-11 shrink-0 items-center px-2 font-semibold underline underline-offset-4"
+      >
+        {t('undo')}
+      </button>
+    </div>
   );
 }
 
@@ -125,6 +159,7 @@ export function CartDrawer() {
 
   return (
     <Drawer open={open} onClose={close} title={t('title')} footer={footer}>
+      <AddedNotice />
       {lines.length === 0 ? (
         <div className="flex h-full flex-col items-center justify-center gap-4 px-8 py-16 text-center">
           <h3 className="font-display text-xl font-semibold">{t('emptyTitle')}</h3>

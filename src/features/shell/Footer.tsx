@@ -3,6 +3,7 @@ import { Wordmark } from '@/components/ui/Wordmark';
 import { ResetDemoButton } from '@/features/demo/ResetDemo';
 import { Link } from '@/i18n/navigation';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { NewsletterForm } from './NewsletterForm';
 
 const linkClass =
   'inline-flex min-h-11 items-center text-sm text-sand-200 hover:text-white hover:underline underline-offset-4';
@@ -11,9 +12,20 @@ export function Footer() {
   const t = useTranslations('footer');
   const nav = useTranslations('nav');
   const demo = useTranslations('announcement');
+  const newsletter = useTranslations('newsletter');
 
   return (
     <footer className="mt-24 bg-ink-900 text-paper">
+      <div className="border-b border-ink-700">
+        <div className="container-page grid gap-8 py-12 md:grid-cols-2 md:items-center md:gap-16">
+          <div>
+            <h2 className="font-display text-2xl font-semibold">{newsletter('title')}</h2>
+            <p className="mt-2 max-w-md text-sm text-sand-300">{newsletter('body')}</p>
+          </div>
+          <NewsletterForm />
+        </div>
+      </div>
+
       <div className="container-page grid gap-12 py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="flex max-w-sm flex-col items-start gap-4">
           <Wordmark inverted />
@@ -31,7 +43,7 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/shop?sort=newest" className={linkClass}>
+              <Link href="/shop?new=1&sort=newest" className={linkClass}>
                 {nav('newIn')}
               </Link>
             </li>

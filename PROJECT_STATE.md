@@ -5,13 +5,13 @@ Brand is invented: **ATHAR / أثر**. All data is fictional.
 
 ## Status
 
-| Milestone                                                     | State            |
-| ------------------------------------------------------------- | ---------------- |
-| M0 Foundation                                                 | **Done**         |
-| M1 Home + Shop + filters + product page                       | Next (not begun) |
-| M2 Cart, checkout, orders, wishlist, search                   | —                |
-| M3 Polish (transitions, RTL/a11y audit, Lighthouse ≥ 90, 404) | —                |
-| M4 Static build, hosting, README, portfolio pack              | —                |
+| Milestone                                                     | State    |
+| ------------------------------------------------------------- | -------- |
+| M0 Foundation                                                 | **Done** |
+| M1 Home + Shop + filters + product page                       | **Done** |
+| M2 Cart, checkout, orders, wishlist, search                   | Next     |
+| M3 Polish (transitions, RTL/a11y audit, Lighthouse ≥ 90, 404) | —        |
+| M4 Static build, hosting, README, portfolio pack              | —        |
 
 ## Done in M0
 
@@ -26,12 +26,25 @@ Brand is invented: **ATHAR / أثر**. All data is fictional.
 - Image strategy: generated placeholders now; `npm run images:optimize` for real photos (`docs/IMAGES.md`).
 - 49 unit tests (storage, demo kit, catalog queries, seed integrity, cart, i18n parity, contrast tokens).
 
+## Done in M1
+
+- **Home** (`src/features/home`): hero, category tiles, featured, new arrivals, promo strip + tiles, brand values,
+  newsletter box in the footer (UI-only, honest success state). Each section loads on its own (skeleton, error, retry).
+- **Shop** (`/shop`, `/category/[slug]`, `/collection/[slug]`, one `ShopListing`): search, filters (category, size,
+  colour, price, in-stock), sort, result count, removable chips, numbered pagination (12 per page, focus moves to the
+  results), URL-synced. Desktop sticky sidebar; phone bottom sheet with "Apply (N results)".
+- **Product page** (`/product/[slug]`, all 24 × 2 locales prerendered): gallery + lightbox with zoom, colour swatches,
+  size picker with stock states, quantity, add to cart → mini-cart with Undo, size guide, accordion, reviews with
+  distribution, related, breadcrumbs, mobile sticky buy bar, per-locale metadata.
+- **Cards**: hover second photo, colour dots, old price, wishlist heart (persisted), quick view.
+- **Data**: stock per colour and size, sold-out scenarios, variant-aware filters and facets, fictional reviews,
+  wishlist / reviews / newsletter repositories. `SEED_VERSION = 2`.
+- **Tooling**: `npm run size` (initial JS per route, since Next 16 no longer prints it). 100 unit tests.
+
 ## Next
 
-M1 — Home, Shop listing (search, filters, sort, URL-synced, pagination, skeletons), Product page.
-The home page (`src/features/foundation/FoundationPreview.tsx`) is a **temporary** foundation preview
-and is deleted in M1. `src/app/[locale]/[...slug]/page.tsx` serves "coming soon" for routes not built
-yet; each later milestone adds a real page that overrides it.
+M2 — Cart page, checkout (mock), orders, wishlist page, search page. Routes still served by the "coming soon"
+placeholder: `search`, `wishlist`, `account`, `cart`, `checkout`, `help/*` (`src/app/[locale]/[...slug]/page.tsx`).
 
 ## Decisions
 
@@ -44,6 +57,9 @@ yet; each later milestone adds a real page that overrides it.
 - **Images:** custom `next/image` loader maps widths to pre-built WebP (static export has no optimizer).
 - **Optimistic cart:** UI updates immediately; saves are queued; a failed save rolls back and shows a toast.
 - **Architecture enforced by ESLint:** UI cannot use storage or seed data directly (see `eslint.config.mjs`).
+- **Shop state in the URL:** read with `useSearchParams` inside Suspense; controls use `useOptimistic` so they never lag.
+- **Per-colour stock:** a product is a set of colourways; filters match a colour+size+stock combination together.
+- **No JSON-LD:** structured data was left out on purpose (fictional store, nothing accurate to claim).
 - **TypeScript pinned to 5.9, ESLint to 9:** TypeScript 7 and ESLint 10 are not yet supported by the tooling.
 
 ## How to run
@@ -60,5 +76,5 @@ Useful URLs: `/ar/?demo=fast` (no delays), `/en/?demo=error` (force error states
 
 ## Seed version
 
-`SEED_VERSION = 1` in `src/lib/demo/config.ts`. Bump it whenever seed data or persisted shapes change;
+`SEED_VERSION = 2` in `src/lib/demo/config.ts`. Bump it whenever seed data or persisted shapes change;
 every visitor is reseeded automatically and old keys are purged.

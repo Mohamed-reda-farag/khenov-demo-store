@@ -44,8 +44,32 @@ describe('queryCatalog', () => {
     const items = run({ sizes: [42], pageSize: 50 }).items;
     expect(items.length).toBeGreaterThan(0);
     for (const p of items) {
-      expect(p.sizes.find((s) => s.size === 42)?.stock ?? 0).toBeGreaterThan(0);
+      expect(p.colors.some((c) => (c.sizes.find((s) => s.size === 42)?.stock ?? 0) > 0)).toBe(true);
     }
+  });
+
+  it('colour and size filters are evaluated on the same colourway', () => {
+    // Dune Court is sold out in ivory, so ivory + any size must not match it.
+    const ivory = run({ colors: ['ivory'], sizes: [40, 41, 42, 43, 44], pageSize: 50 });
+    expect(ivory.items.map((p) => p.slug)).not.toContain('dune-court');
+    const sand = run({ colors: ['sand'], pageSize: 50 });
+    expect(sand.items.map((p) => p.slug)).toContain('dune-court');
+  });
+
+  it('in-stock-only drops fully sold-out products and sold-out colours', () => {
+    const all = run({ pageSize: 50 });
+    const available = run({ inStock: true, pageSize: 50 });
+    expect(all.items.map((p) => p.slug)).toContain('garden-city-mule');
+    expect(available.items.map((p) => p.slug)).not.toContain('garden-city-mule');
+    expect(available.total).toBe(all.total - 1);
+    expect(
+      run({ inStock: true, colors: ['ivory'], pageSize: 50 }).items.map((p) => p.slug),
+    ).not.toContain('dune-court');
+  });
+
+  it('filters on sale and new arrivals', () => {
+    expect(run({ onSale: true, pageSize: 50 }).items.every((p) => p.compareAtPriceEGP)).toBe(true);
+    expect(run({ onlyNew: true, pageSize: 50 }).items.every((p) => p.isNew)).toBe(true);
   });
 
   it('sorts correctly', () => {
@@ -62,6 +86,13 @@ describe('queryCatalog', () => {
     expect(run({ q: 'كحلي' }).total).toBeGreaterThan(0);
     expect(run({ q: 'صنادل' }).items.every((p) => p.categoryId === 'sandals')).toBe(true);
     expect(run({ q: 'zzzz-no-match' }).total).toBe(0);
+  });
+
+  it('size facets only count colourways that match the other filters', () => {
+    const base = run({ pageSize: 1 }).facets.sizes.find((s) => s.size === 40)?.count ?? 0;
+    const black = run({ colors: ['black'], pageSize: 1 }).facets.sizes.find((s) => s.size === 40);
+    expect(black?.count ?? 0).toBeLessThanOrEqual(base);
+    expect(run({ pageSize: 1 }).facets.colors.length).toBeGreaterThan(5);
   });
 
   it('facet counts ignore their own filter so options stay selectable', () => {
