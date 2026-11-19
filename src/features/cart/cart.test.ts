@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
-import { PRODUCTS } from '@/data/seed';
+import { TEST_PRODUCTS as PRODUCTS } from '@/data/testing';
 import { colorHasStock } from '@/data/stock';
 import { ensureSeeded, resetDemo } from '@/lib/demo';
 import { setFlagsForTest } from '@/lib/demo/flags';
@@ -8,6 +8,7 @@ import {
   addLine,
   buildLine,
   itemCount,
+  reorderLines,
   removeLine,
   restoreLine,
   setLineQuantity,
@@ -132,5 +133,34 @@ describe('cart store + repository', () => {
     await new Promise((r) => setTimeout(r, 20));
     resetDemo();
     expect(await cartRepository.load()).toEqual([]);
+  });
+});
+
+describe('reorderLines', () => {
+  const product = PRODUCTS.find((p) => p.slug === 'nile-low')!;
+  const color = product.colors.find(colorHasStock)!;
+  const size = color.sizes.find((s) => s.stock >= 2)!.size;
+  const soldOutColor = product.colors.find((c) => !colorHasStock(c))!;
+
+  it('rebuilds lines with current price and stock', () => {
+    const old = { ...buildLine(product, color.id, size, 2)!, unitPriceEGP: 1, maxQuantity: 99 };
+    const { lines, skipped } = reorderLines([old], PRODUCTS);
+    expect(skipped).toEqual([]);
+    expect(lines[0]).toMatchObject({ unitPriceEGP: product.priceEGP, quantity: 2 });
+    expect(lines[0]!.maxQuantity).toBeLessThan(99);
+  });
+
+  it('skips lines that can no longer be bought and caps quantities to stock', () => {
+    const gone = {
+      ...buildLine(product, color.id, size, 1)!,
+      colorId: soldOutColor.id,
+      id: 'gone',
+    };
+    const greedy = { ...buildLine(product, color.id, size, 1)!, quantity: 50 };
+    const { lines, skipped } = reorderLines([gone, greedy], PRODUCTS);
+    expect(skipped.map((l) => l.id)).toEqual(['gone']);
+    expect(lines).toHaveLength(1);
+    expect(lines[0]!.quantity).toBeLessThanOrEqual(10);
+    expect(lines[0]!.quantity).toBeLessThanOrEqual(lines[0]!.maxQuantity);
   });
 });

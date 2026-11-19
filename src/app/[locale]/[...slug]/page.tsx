@@ -6,11 +6,6 @@ import { routing } from '@/i18n/routing';
 
 /** Routes owned by later milestones. Each gets its own page file there and wins over this one. */
 const PLANNED_ROUTES: string[][] = [
-  ['search'],
-  ['wishlist'],
-  ['account'],
-  ['cart'],
-  ['checkout'],
   ['help', 'shipping'],
   ['help', 'returns'],
   ['help', 'size-guide'],

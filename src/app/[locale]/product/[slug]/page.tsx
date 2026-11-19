@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import { hasLocale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { photoCount } from '@/data/images';
+import { Suspense } from 'react';
+import { firstPhotoColorId } from '@/data/images';
 import { catalogStatic } from '@/data/repository/catalog.static';
-import { ProductView } from '@/features/product/ProductView';
+import { ProductSkeleton, ProductView } from '@/features/product/ProductView';
 import { routing } from '@/i18n/routing';
 
 export const dynamicParams = false;
@@ -24,7 +25,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const brand = await getTranslations({ locale, namespace: 'brand' });
   const title = `${product.name[locale]} — ${brand('name')}`;
   const description = `${product.tagline[locale]}. ${product.description[locale]}`;
-  const image = photoCount(slug) > 0 ? [`/images/products/${slug}/1-960.webp`] : [];
+  const photoColor = firstPhotoColorId(slug);
+  const image = photoColor ? [`/images/products/${slug}/${photoColor}-1-960.webp`] : [];
   return {
     title,
     description,
@@ -41,5 +43,9 @@ export default async function ProductPage({ params }: { params: Params }) {
   const { locale, slug } = await params;
   if (!hasLocale(routing.locales, locale) || !catalogStatic.getProduct(slug)) notFound();
   setRequestLocale(locale);
-  return <ProductView slug={slug} />;
+  return (
+    <Suspense fallback={<ProductSkeleton />}>
+      <ProductView slug={slug} />
+    </Suspense>
+  );
 }

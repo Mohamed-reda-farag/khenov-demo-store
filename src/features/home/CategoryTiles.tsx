@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/StateBlocks';
-import { photoCount } from '@/data/images';
+import { firstPhotoColorId } from '@/data/images';
 import { catalogRepository } from '@/data/repository';
 import { ArtTile, ProductImage } from '@/features/catalog/components/ProductImage';
 import { artFor, type ArtTone } from '@/features/catalog/components/ShoeArt';
@@ -67,18 +67,19 @@ export function CategoryTiles() {
         <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
           {state.data.map(({ category, count }) => {
             const art = artFor(category.id, category.coverSlug);
-            const hasPhoto = photoCount(category.coverSlug) > 0;
+            const coverColorId = firstPhotoColorId(category.coverSlug);
             return (
               <li key={category.id}>
                 <Link
                   href={`/category/${category.slug}`}
                   className="group relative block aspect-[4/5] overflow-hidden rounded-md bg-canvas"
                 >
-                  {hasPhoto ? (
+                  {coverColorId ? (
                     <ProductImage
                       fill
                       zoom
                       slug={category.coverSlug}
+                      colorId={coverColorId}
                       categoryId={category.id}
                       alt=""
                       colorHex={SHOE[art.tone]}

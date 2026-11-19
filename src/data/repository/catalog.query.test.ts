@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeSearch } from '@/lib/text';
-import { CATEGORIES, PRODUCTS } from '../seed';
+import { CATEGORIES } from '../seed';
+import { TEST_PRODUCTS as PRODUCTS } from '../testing';
 import { queryCatalog, relatedTo, suggestFrom } from './catalog.query';
 
 const run = (query: Parameters<typeof queryCatalog>[2]) =>

@@ -10,20 +10,63 @@ silhouette on a studio background). Real photos replace the placeholders automat
 2. **No brands:** choose photos where no logo, swoosh, stripe pattern or wordmark is clearly visible.
 3. **Shoes only:** no faces, no recognisable people. A plain or studio background looks best.
 4. **Size:** at least **1600 px** on the long side. Portrait or square is best (the site crops to 4:5).
-5. **Quantity:** `-1` is required for each product (24 files minimum). `-2` to `-6` are optional extra
-   angles. The product page gallery shows them all; the shop card shows `-2` when you hover it.
-6. The shoe colour does not have to match the fictional colour exactly; closer is nicer.
+5. **Quantity:** photo 1 is required for each colour you want to sell. Photos 2 to 6 are optional extra angles.
+   The product page gallery shows them all; the shop card shows photo 2 when you hover it.
+6. The shoe in a photo should be the colour in its file name; closer to the swatch is nicer.
 
 ## Naming and placement
 
-Save each file in `assets-source\products\` (inside the repo folder) named:
+Save each file in `assets-source\products\`. There are two accepted names:
 
-```
-<product-slug>-<number>.jpg
-```
+| Name                           | Meaning                                                                                |
+| ------------------------------ | -------------------------------------------------------------------------------------- |
+| `<slug>-<colorId>-<n>.jpg`     | Photo `n` of a specific colour. **Use this for every new photo.**                      |
+| `<slug>-<n>.jpg` (older style) | Photo `n` of the colour the product was photographed in (column 3 of the table below). |
 
-Example: `assets-source\products\nile-low-1.jpg`, `assets-source\products\nile-low-2.jpg`.
-`.jpg`, `.jpeg`, `.png` and `.webp` are accepted. Numbers must be 1, 2, 3… with no gaps.
+`n` = 1 is the main photo, 2 is the one shown on hover in the shop, 3 and up are extra gallery photos
+(up to 6). Numbers must be 1, 2, 3… with no gaps. `.jpg`, `.jpeg`, `.png` and `.webp` are accepted.
+
+Examples: `nile-low-sand-1.jpg`, `nile-low-sand-2.jpg`, `nile-low-sand-3.jpg`.
+If a colour has both styles of file, the explicit `<slug>-<colorId>-<n>` name wins.
+
+### Colours that exist for each product
+
+| Product slug       | Colour ids (use in the file name) | Photographed colour (older-style files) |
+| ------------------ | --------------------------------- | --------------------------------------- |
+| `nile-low`         | `ivory`, `sand`                   | `ivory`                                 |
+| `dune-court`       | `sand`, `black`, `ivory`          | `sand`                                  |
+| `corniche-hi`      | `black`, `ivory`                  | `black`                                 |
+| `souk-canvas`      | `navy`, `terracotta`, `ivory`     | `navy`                                  |
+| `oasis-leather`    | `ivory`, `olive`                  | `ivory`                                 |
+| `maadi-retro`      | `terracotta`, `navy`              | `terracotta`                            |
+| `sprint-delta`     | `black`, `cobalt`, `ivory`        | `black`                                 |
+| `cairo-tempo`      | `stone`, `terracotta`             | `stone`                                 |
+| `nile-trail`       | `olive`, `black`                  | `olive`                                 |
+| `pace-light`       | `ivory`, `cobalt`                 | `ivory`                                 |
+| `marathon-pro`     | `black`, `terracotta`             | `black`                                 |
+| `siwa-chukka`      | `tan`, `black`                    | `tan`                                   |
+| `atlas-chelsea`    | `black`, `tan`                    | `black`                                 |
+| `sinai-hiker`      | `olive`, `tan`                    | `olive`                                 |
+| `alex-work`        | `tan`, `black`                    | `tan`                                   |
+| `sahel-slide`      | `sand`, `black`, `ivory`          | `sand`                                  |
+| `dahab-strap`      | `tan`, `cobalt`                   | `tan`                                   |
+| `luxor-leather`    | `tan`, `black`                    | `tan`                                   |
+| `marsa-cork`       | `sand`, `olive`                   | `sand`                                  |
+| `zamalek-loafer`   | `black`, `tan`                    | `black`                                 |
+| `khan-derby`       | `black`, `tan`                    | `black`                                 |
+| `giza-oxford`      | `black`, `tan`                    | `black`                                 |
+| `heliopolis-penny` | `tan`, `navy`                     | `tan`                                   |
+| `garden-city-mule` | `sand`, `black`                   | `sand`                                  |
+
+Colour ids in the whole catalogue: `ivory`, `sand`, `black`, `navy`, `terracotta`, `olive`, `cobalt`,
+`stone`, `tan`. A colour that is not in the list (for example `brown`) is reported by the script and
+ignored; ask the team to add it (id, Arabic and English name, swatch) before photographing it.
+
+### Rule: a colour is sold only if it has photos
+
+A colour with at least one photo is "Available" (stock as defined in the seed). A colour with no photo is
+shown as "Sold out" until its photos are added. Picking a colour on the product page, the shop card, the
+cart, the wishlist and orders switches to that colour's photos.
 
 ## What to search for
 
@@ -59,22 +102,30 @@ Tip: search, press **Download** (choose the largest size), then rename the file.
 ## Process the photos (PowerShell, from the repo folder)
 
 ```powershell
-npm run images:optimize
+npm run images:optimize          # only new or changed photos are processed
+npm run images:optimize -- --force   # rebuild everything
 ```
 
-The script reads `assets-source\products`, writes optimized WebP files (480 / 960 / 1600 px wide) to
-`public\images\products\<slug>\`, and updates `src\data\image-manifest.json`. It prints which
-products still use placeholders and warns about badly named or low-resolution files.
+The script reads `assets-source\products`, writes WebP files (480 / 960 / 1600 px wide) to
+`public\images\products\<slug>\<colorId>-<n>-<width>.webp`, and updates `src\data\image-manifest.json`
+(`product → colour → number of photos`). It prints:
 
-Then check the result with `npm run dev`, and commit `public\images` and `src\data\image-manifest.json`
+- the colours that now have photos, per product;
+- **colours without photos** (with the exact file name to add, so they stay "Sold out");
+- warnings: unknown colour ids, files that match no product, gaps in numbering, low resolution.
+
+Then check the result with `npm run dev` and commit `public\images` and `src\data\image-manifest.json`
 (the raw files in `assets-source` are intentionally not committed).
 
-## Colours
+### Adding more colours later
 
-The photos of a product show one colour. `src/data/seed/photo-colors.ts` records which one: that
-colour is sold ("Available"), and the product's other colours are shown as sold out until photos
-exist for them. When photos for another colour are added, the colour-to-photo link comes with them
-(a later milestone); until then, only edit the one line for that product.
+1. Photograph the colour and save `<slug>-<colorId>-1.jpg` … `-3.jpg` in `assets-source\products\`.
+2. `npm run images:optimize`; read the printed report. The new colour appears in "Colours with photos".
+3. `npm run dev`, open the product and click the colour: the gallery changes. Check the shop card dots.
+4. `git add .` then commit. No code change is needed.
+
+If an old photo set is replaced, run the script with `--force` so the old WebP files are rebuilt.
+Because the file layout changed in M2, run `npm run images:optimize` once after updating the project.
 
 ## Credits
 

@@ -12,6 +12,8 @@ import { useFormat } from '@/lib/hooks/useFormat';
 interface LightboxProps {
   product: Product;
   colorHex: string;
+  /** Colour whose photos are shown. */
+  photoColorId: string | undefined;
   count: number;
   index: number;
   onIndexChange: (index: number) => void;
@@ -24,6 +26,7 @@ const ZOOM = 2.2;
 export function Lightbox({
   product,
   colorHex,
+  photoColorId,
   count,
   index,
   onIndexChange,
@@ -132,6 +135,7 @@ export function Lightbox({
                 categoryId={product.categoryId}
                 alt={t('photoAlt', { name, n: format.number(index + 1) })}
                 colorHex={colorHex}
+                colorId={photoColorId}
                 index={index}
                 sizes="(min-width: 1024px) 70vh, 100vw"
               />

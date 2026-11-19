@@ -2,7 +2,7 @@
   "name": "khenov-demo-store",
   "version": "0.1.0",
   "private": true,
-  "description": "ATHAR \u2014 fictional footwear store. A KHENOV portfolio demo (static, no backend).",
+  "description": "ATHAR — fictional footwear store. A KHENOV portfolio demo (static, no backend).",
   "engines": {
     "node": ">=22"
   },
@@ -27,6 +27,7 @@
     "next-intl": "^4.15.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "zod": "^4.6.7",
     "zustand": "^5.1.0"
   },
   "devDependencies": {

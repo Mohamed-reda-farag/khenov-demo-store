@@ -1,6 +1,6 @@
 /** Demo-kit configuration. Bump SEED_VERSION to reseed every visitor automatically. */
 export const APP_ID = 'atar';
-export const SEED_VERSION = 3;
+export const SEED_VERSION = 4;
 
 export const NAMESPACE_ROOT = 'khenov-demo';
 

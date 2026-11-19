@@ -93,6 +93,12 @@ export interface Review {
   date: string;
 }
 
+/** A hearted product, with the colour the visitor was looking at (its photos represent the entry). */
+export interface WishlistEntry {
+  productId: string;
+  colorId: string;
+}
+
 /** Minimal product data copied into a cart line so the cart renders without a catalog lookup. */
 export interface CartLine {
   id: string;
@@ -108,4 +114,50 @@ export interface CartLine {
   unitPriceEGP: number;
   /** Upper bound for the quantity stepper (min of stock and the per-line cap). */
   maxQuantity: number;
+}
+
+export type ShippingMethodId = 'standard' | 'express';
+export type PaymentMethod = 'card' | 'cod';
+
+export type OrderStatus = 'placed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+
+export interface OrderTotals {
+  subtotal: number;
+  discount: number;
+  shipping: number;
+  total: number;
+}
+
+/** A saved shipping address (the demo user has no login; these live in this browser only). */
+export interface Address {
+  id: string;
+  fullName: string;
+  /** Recipient's mobile number, normalised to 01XXXXXXXXX. */
+  phone: string;
+  governorate: string;
+  city: string;
+  street: string;
+  notes: string;
+  isDefault: boolean;
+}
+
+export interface Order {
+  id: string;
+  /** ISO timestamp. The status timeline is derived from it (see rules/order-status.ts). */
+  createdAt: string;
+  cancelledAt?: string;
+  lines: CartLine[];
+  contact: { email: string; phone: string };
+  shipping: {
+    fullName: string;
+    governorate: string;
+    city: string;
+    street: string;
+    notes: string;
+  };
+  shippingMethod: ShippingMethodId;
+  /** Only the method is kept. Card details are never stored, anywhere. */
+  paymentMethod: PaymentMethod;
+  promoCode?: string;
+  totals: OrderTotals;
 }

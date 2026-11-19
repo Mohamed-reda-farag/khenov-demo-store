@@ -4,8 +4,10 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Drawer } from '@/components/ui/Drawer';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { Locale } from '@/data/types';
+import { useWishlistStore } from '@/features/wishlist/wishlist.store';
 import { Link } from '@/i18n/navigation';
 import { useAsync } from '@/lib/hooks/useAsync';
+import { useFormat } from '@/lib/hooks/useFormat';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { loadNavData, useMobileNavStore } from './nav';
 
@@ -14,6 +16,9 @@ const rowClass =
 
 export function MobileNavDrawer() {
   const t = useTranslations('nav');
+  const header = useTranslations('header');
+  const format = useFormat();
+  const wishlistCount = useWishlistStore((s) => s.entries.length);
   const common = useTranslations('common');
   const locale = useLocale() as Locale;
   const open = useMobileNavStore((s) => s.open);
@@ -60,6 +65,15 @@ export function MobileNavDrawer() {
         </Link>
         <Link href="/shop?sale=1" onClick={close} className={rowClass}>
           {t('offers')}
+        </Link>
+        <Link href="/wishlist" onClick={close} className={`${rowClass} justify-between`}>
+          {header('wishlist')}
+          {wishlistCount > 0 ? (
+            <span className="text-sm text-ink-500">{format.number(wishlistCount)}</span>
+          ) : null}
+        </Link>
+        <Link href="/account" onClick={close} className={rowClass}>
+          {header('account')}
         </Link>
         <div className="pt-4">
           <LanguageSwitcher className="border border-sand-300" />

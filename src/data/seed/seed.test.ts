@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { allSizes, colorHasStock, isProductSoldOut, stockLevel } from '../stock';
-import { BANNERS, CATEGORIES, COLLECTIONS, PRODUCTS, REVIEWS } from './index';
+import { TEST_MANIFEST, TEST_PRODUCTS as PRODUCTS } from '../testing';
+import { BANNERS, CATEGORIES, COLLECTIONS, REVIEWS } from './index';
+import { buildProducts } from './products';
 import { PHOTO_COLORS } from './photo-colors';
 
 describe('seed data integrity', () => {
@@ -56,13 +58,27 @@ describe('seed data integrity', () => {
     expect(partlySoldOut.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('sells only the photographed colour of each product, except the sold-out scenario', () => {
+  it('sells a colour only when it has photos, except the sold-out scenario', () => {
+    const products = buildProducts({
+      'nile-low': { sand: 2 },
+      'dune-court': { sand: 1, black: 3 },
+    });
+    const nile = products.find((p) => p.slug === 'nile-low')!;
+    expect(nile.colors.filter(colorHasStock).map((c) => c.id)).toEqual(['sand']);
+    const dune = products.find((p) => p.slug === 'dune-court')!;
+    expect(dune.colors.filter(colorHasStock).map((c) => c.id)).toEqual(['sand', 'black']);
+    expect(isProductSoldOut(products.find((p) => p.slug === 'souk-canvas')!)).toBe(true);
+    const mule = buildProducts({ 'garden-city-mule': { sand: 2 } }).find(
+      (p) => p.slug === 'garden-city-mule',
+    )!;
+    expect(isProductSoldOut(mule)).toBe(true);
+  });
+
+  it('keeps the photographed-colour fallback pointing at a real colour of each product', () => {
     expect(Object.keys(PHOTO_COLORS).sort()).toEqual(PRODUCTS.map((p) => p.slug).sort());
     for (const p of PRODUCTS) {
-      const photographed = PHOTO_COLORS[p.slug];
-      expect(p.colors.map((c) => c.id)).toContain(photographed);
-      const buyable = p.colors.filter(colorHasStock).map((c) => c.id);
-      expect(buyable).toEqual(isProductSoldOut(p) ? [] : [photographed]);
+      expect(p.colors.map((c) => c.id)).toContain(PHOTO_COLORS[p.slug]);
+      expect(Object.keys(TEST_MANIFEST[p.slug] ?? {})).toHaveLength(1);
     }
   });
 

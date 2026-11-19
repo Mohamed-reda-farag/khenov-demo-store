@@ -1,4 +1,4 @@
-import { photoCount } from '@/data/images';
+import { firstPhotoColorId } from '@/data/images';
 import type { Banner } from '@/data/types';
 import { ArtTile, ProductImage } from '@/features/catalog/components/ProductImage';
 
@@ -25,11 +25,13 @@ export function BannerImage({
   alt?: string;
 }) {
   const slug = banner.productSlug;
-  if (slug && photoCount(slug) > 0) {
+  const colorId = slug ? firstPhotoColorId(slug) : undefined;
+  if (slug && colorId) {
     return (
       <ProductImage
         fill
         slug={slug}
+        colorId={colorId}
         categoryId="sneakers"
         alt={alt}
         colorHex={ART_SHOE[banner.tone]}

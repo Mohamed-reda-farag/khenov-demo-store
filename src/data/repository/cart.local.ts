@@ -5,9 +5,11 @@ import type { CartLine } from '../types';
 import type { CartRepository } from './cart';
 
 const KEY = 'cart';
+const PROMO_KEY = 'cartPromo';
 
 registerSeeder(() => {
   storage.set<CartLine[]>(KEY, []);
+  storage.set<string | null>(PROMO_KEY, null);
 });
 
 export const localCartRepository: CartRepository = {
@@ -19,5 +21,13 @@ export const localCartRepository: CartRepository = {
   async save(lines) {
     await simulateNetwork(120, 360);
     storage.set(KEY, lines);
+  },
+
+  async loadPromoCode() {
+    return storage.get<string | null>(PROMO_KEY, null);
+  },
+
+  async savePromoCode(code) {
+    storage.set(PROMO_KEY, code);
   },
 };

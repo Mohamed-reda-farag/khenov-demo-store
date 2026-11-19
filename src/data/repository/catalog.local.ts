@@ -15,6 +15,11 @@ export const localCatalogRepository: CatalogRepository = {
     return PRODUCTS.find((p) => p.slug === slug) ?? null;
   },
 
+  async getByIds(ids) {
+    await simulateNetwork(120, 360);
+    return PRODUCTS.filter((p) => ids.includes(p.id));
+  },
+
   async getRelated(productId, limit = 4) {
     await simulateNetwork();
     const source = PRODUCTS.find((p) => p.id === productId);

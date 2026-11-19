@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
@@ -16,6 +17,7 @@ import { useAsync } from '@/lib/hooks/useAsync';
 import { useFormat } from '@/lib/hooks/useFormat';
 import { Gallery } from './Gallery';
 import { ProductDetails } from './ProductDetails';
+import { WishlistButton } from '@/features/wishlist/WishlistButton';
 import { PurchasePanel } from './PurchasePanel';
 import { RatingSummary } from './RatingSummary';
 import { RelatedProducts } from './RelatedProducts';
@@ -34,7 +36,7 @@ async function loadProductPage(slug: string) {
   };
 }
 
-function ProductSkeleton() {
+export function ProductSkeleton() {
   return (
     <div role="status" aria-busy className="container-page py-6">
       <Skeleton className="mb-6 h-4 w-64" />
@@ -56,12 +58,20 @@ function ProductSkeleton() {
   );
 }
 
-function ProductLoaded({ product, category }: { product: Product; category: Category | null }) {
+function ProductLoaded({
+  product,
+  category,
+  colorId,
+}: {
+  product: Product;
+  category: Category | null;
+  colorId: string | undefined;
+}) {
   const t = useTranslations('product');
   const nav = useTranslations('nav');
   const cart = useTranslations('cart');
   const format = useFormat();
-  const purchase = usePurchase(product, cart('maxReached'));
+  const purchase = usePurchase(product, cart('maxReached'), colorId);
   const [cta, setCta] = useState<HTMLDivElement | null>(null);
   const soldOut = isProductSoldOut(product);
 
@@ -79,7 +89,7 @@ function ProductLoaded({ product, category }: { product: Product; category: Cate
       <Breadcrumbs items={crumbs} label={nav('breadcrumb')} />
 
       <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-14">
-        <Gallery product={product} colorHex={purchase.color.hex} priority />
+        <Gallery product={product} color={purchase.color} priority />
 
         <div className="flex flex-col gap-6">
           <header className="flex flex-col gap-2">
@@ -90,9 +100,17 @@ function ProductLoaded({ product, category }: { product: Product; category: Cate
                 <Badge tone="warning">{t('soldOutColor')}</Badge>
               ) : null}
             </div>
-            <h1 className="font-display text-3xl font-semibold tracking-display">
-              {format.text(product.name)}
-            </h1>
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="font-display text-3xl font-semibold tracking-display">
+                {format.text(product.name)}
+              </h1>
+              <WishlistButton
+                productId={product.id}
+                colorId={purchase.color.id}
+                name={format.text(product.name)}
+                className="shrink-0 border border-sand-300"
+              />
+            </div>
             <p className="text-ink-700">{format.text(product.tagline)}</p>
             <RatingSummary rating={product.rating} count={product.reviewCount} href="#reviews" />
             <Price
@@ -122,6 +140,7 @@ export function ProductView({ slug }: { slug: string }) {
   const states = useTranslations('states');
   const common = useTranslations('common');
   const t = useTranslations('product');
+  const colorId = useSearchParams().get('color') ?? undefined;
   const state = useAsync(`product-page:${slug}`, () => loadProductPage(slug));
 
   if (state.status === 'loading') return <ProductSkeleton />;
@@ -153,5 +172,5 @@ export function ProductView({ slug }: { slug: string }) {
       </div>
     );
   }
-  return <ProductLoaded key={product.id} product={product} category={category} />;
+  return <ProductLoaded key={product.id} product={product} category={category} colorId={colorId} />;
 }

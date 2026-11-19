@@ -10,6 +10,8 @@ interface ProductImageProps {
   alt: string;
   /** Hex of the colour to show on the generated placeholder. */
   colorHex: string;
+  /** Colour whose photo to show; without photos for it the placeholder is drawn. */
+  colorId?: string | undefined;
   /** Gallery position (0-based). */
   index?: number;
   /** next/image `sizes` for the real photo. */
@@ -31,6 +33,7 @@ export function ProductImage({
   categoryId,
   alt,
   colorHex,
+  colorId,
   index = 0,
   sizes,
   priority = false,
@@ -38,7 +41,7 @@ export function ProductImage({
   fill = false,
   className = '',
 }: ProductImageProps) {
-  const hasPhoto = photoCount(slug) > index;
+  const hasPhoto = colorId !== undefined && photoCount(slug, colorId) > index;
   const art = artFor(categoryId, slug);
   const motion = zoom ? 'transition-transform dur-slow ease-brand group-hover:scale-105' : '';
 
@@ -48,7 +51,7 @@ export function ProductImage({
     >
       {hasPhoto ? (
         <Image
-          src={photoSrc(slug, index)}
+          src={photoSrc(slug, colorId ?? '', index)}
           alt={alt}
           fill
           sizes={sizes}

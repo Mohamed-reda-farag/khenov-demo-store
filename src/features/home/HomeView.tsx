@@ -9,7 +9,7 @@ import type { Banner } from '@/data/types';
 import { Link } from '@/i18n/navigation';
 import { useAsync } from '@/lib/hooks/useAsync';
 import { useFormat } from '@/lib/hooks/useFormat';
-import { BannerImage } from './BannerImage';
+import { BannerImage } from '@/features/catalog/components/BannerImage';
 import { CategoryTiles } from './CategoryTiles';
 import { ProductRail } from './ProductRail';
 import { PromoStrip, PromoTiles } from './Promos';

@@ -22,14 +22,14 @@ function Block({ title, body, action, icon }: BlockProps & { role?: 'alert' | 's
   );
 }
 
-export function EmptyState({ title, body, action }: Omit<BlockProps, 'icon'>) {
+export function EmptyState({ title, body, action, icon }: BlockProps) {
   return (
     <div role="status">
       <Block
         title={title}
         body={body}
         action={action}
-        icon={<SearchX aria-hidden className="size-7" />}
+        icon={icon ?? <SearchX aria-hidden className="size-7" />}
       />
     </div>
   );

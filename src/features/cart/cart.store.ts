@@ -6,6 +6,7 @@ import type { CartLine, Product } from '@/data/types';
 import {
   addLine,
   buildLine,
+  refreshLine,
   removeLine,
   restoreLine,
   setLineQuantity,
@@ -16,6 +17,8 @@ interface CartState {
   lines: CartLine[];
   hydrated: boolean;
   drawerOpen: boolean;
+  /** The promo code the visitor applied (validated against the subtotal when shown). */
+  promoCode: string | null;
   /** Incremented when a background save failed and the cart was rolled back. */
   syncErrors: number;
   /** The most recent add, kept so the drawer can offer Undo. */
@@ -27,9 +30,16 @@ interface CartState {
     size: number,
     quantity?: number,
   ) => AddResult | 'unavailable';
+  /** Adds several lines at once (reorder); no drawer notice. Returns how many lines were added. */
+  addMany: (lines: readonly CartLine[]) => number;
   undoAdd: () => void;
   clearLastAdded: () => void;
   setQuantity: (id: string, quantity: number) => void;
+  /** Takes the catalogue's current stock cap and/or price for a line. */
+  refresh: (id: string, patch: { maxQuantity?: number; unitPriceEGP?: number }) => void;
+  setPromoCode: (code: string | null) => void;
+  /** Empties the cart and forgets the promo code (after an order is placed). */
+  clear: () => void;
   remove: (id: string) => { line: CartLine; index: number } | null;
   restore: (line: CartLine, index: number) => void;
   openDrawer: () => void;
@@ -65,12 +75,16 @@ export const useCartStore = create<CartState>((set, get) => {
     lines: [],
     hydrated: false,
     drawerOpen: false,
+    promoCode: null,
     syncErrors: 0,
     lastAdded: null,
 
     hydrate: async () => {
-      const lines = await cartRepository.load();
-      set({ lines, hydrated: true });
+      const [lines, promoCode] = await Promise.all([
+        cartRepository.load(),
+        cartRepository.loadPromoCode(),
+      ]);
+      set({ lines, promoCode, hydrated: true });
     },
 
     add: (product, colorId, size, quantity = 1) => {
@@ -85,6 +99,19 @@ export const useCartStore = create<CartState>((set, get) => {
       return result;
     },
 
+    addMany: (incoming) => {
+      let next = get().lines;
+      let added = 0;
+      for (const line of incoming) {
+        const { lines, result } = addLine(next, line);
+        next = lines;
+        if (result !== 'capped') added += 1;
+      }
+      set({ lastAdded: null });
+      commit(next);
+      return added;
+    },
+
     undoAdd: () => {
       const last = get().lastAdded;
       if (!last) return;
@@ -97,6 +124,22 @@ export const useCartStore = create<CartState>((set, get) => {
     setQuantity: (id, quantity) => {
       set({ lastAdded: null });
       commit(setLineQuantity(get().lines, id, quantity));
+    },
+
+    refresh: (id, patch) => {
+      set({ lastAdded: null });
+      commit(refreshLine(get().lines, id, patch));
+    },
+
+    setPromoCode: (code) => {
+      set({ promoCode: code });
+      void cartRepository.savePromoCode(code);
+    },
+
+    clear: () => {
+      set({ lastAdded: null, promoCode: null });
+      void cartRepository.savePromoCode(null);
+      commit([]);
     },
 
     remove: (id) => {

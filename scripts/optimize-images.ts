@@ -1,16 +1,29 @@
 /**
  * Turns the raw product photos you downloaded into optimized WebP files the site can use.
  *
- *   assets-source/products/<slug>-<n>.jpg   →   public/images/products/<slug>/<n>-{480,960,1600}.webp
- *                                               src/data/image-manifest.json
+ *   assets-source/products/<slug>-<colorId>-<n>.jpg   a photo of one colour (n = 1 main, 2 hover, 3 third…)
+ *   assets-source/products/<slug>-<n>.jpg             legacy: the product's photographed colour
+ *                                                     (src/data/seed/photo-colors.ts)
+ *     →   public/images/products/<slug>/<colorId>-<n>-{480,960,1600}.webp
+ *         src/data/image-manifest.json   (product → colour → number of photos)
  *
- * Run:  npm run images:optimize
- * Options (for testing): --src=<dir> --out=<dir> --manifest=<file>
+ * A colour becomes available in the shop only when it has photos.
+ *
+ * Run:  npm run images:optimize            (unchanged photos are skipped)
+ * Options: --force  --src=<dir> --out=<dir> --manifest=<file>
  */
-import { mkdir, readdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
-import { PRODUCTS } from '../src/data/seed/products';
+import {
+  buildManifest,
+  colorsWithoutPhotos,
+  groupPhotos,
+  type PhotoNaming,
+} from '../src/data/photo-files';
+import { COLORS } from '../src/data/seed/catalog-meta';
+import { PHOTO_COLORS } from '../src/data/seed/photo-colors';
+import { PHOTO_PRODUCTS } from '../src/data/seed/products';
 
 const WIDTHS = [480, 960, 1600] as const;
 const ASPECT = 4 / 5;
@@ -24,14 +37,22 @@ function arg(name: string, fallback: string): string {
 }
 
 const root = process.cwd();
+const force = process.argv.includes('--force');
 const srcDir = path.resolve(root, arg('src', 'assets-source/products'));
 const outDir = path.resolve(root, arg('out', 'public/images/products'));
 const manifestPath = path.resolve(root, arg('manifest', 'src/data/image-manifest.json'));
 
 const kb = (bytes: number) => `${(bytes / 1024).toFixed(0)} KB`;
 
+async function mtime(file: string): Promise<number | null> {
+  try {
+    return (await stat(file)).mtimeMs;
+  } catch {
+    return null;
+  }
+}
+
 async function main(): Promise<void> {
-  const slugs = new Set(PRODUCTS.map((p) => p.slug));
   let files: string[];
   try {
     files = (await readdir(srcDir)).filter((f) => EXTENSIONS.has(path.extname(f).toLowerCase()));
@@ -41,80 +62,111 @@ async function main(): Promise<void> {
     return;
   }
 
-  const found = new Map<string, Map<number, string>>();
-  const problems: string[] = [];
-
-  for (const file of files.sort()) {
-    const match = /^(.+)-(\d+)\.[a-z]+$/i.exec(file);
-    const slug = match?.[1]?.toLowerCase();
-    const index = Number(match?.[2]);
-    if (!slug || !slugs.has(slug) || !Number.isInteger(index) || index < 1 || index > 6) {
-      problems.push(`Ignored "${file}": the name must look like <product-slug>-<1..6>.jpg`);
-      continue;
-    }
-    const byIndex = found.get(slug) ?? new Map<number, string>();
-    if (byIndex.has(index)) {
-      problems.push(
-        `Ignored "${file}": ${slug}-${index} already exists as "${byIndex.get(index)}"`,
-      );
-      continue;
-    }
-    byIndex.set(index, file);
-    found.set(slug, byIndex);
-  }
+  const naming: PhotoNaming = {
+    products: PHOTO_PRODUCTS,
+    legacyColors: PHOTO_COLORS,
+    knownColorIds: new Set(Object.keys(COLORS)),
+  };
+  const grouped = groupPhotos(files, naming);
+  const built = buildManifest(grouped.groups);
+  const problems = [...grouped.problems, ...built.problems];
 
   let totalBytes = 0;
-  let totalFiles = 0;
-  const manifest: Record<string, number> = {};
+  let written = 0;
+  let skipped = 0;
+  const expected = new Map<string, Set<string>>();
 
-  for (const [slug, byIndex] of [...found.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-    for (const [index, file] of [...byIndex.entries()].sort(([a], [b]) => a - b)) {
-      const input = path.join(srcDir, file);
-      const meta = await sharp(input).rotate().metadata();
-      const longSide = Math.max(meta.width ?? 0, meta.height ?? 0);
-      if (longSide < MIN_LONG_SIDE) {
-        problems.push(
-          `"${file}" is only ${longSide}px on its long side; it will look soft (aim for 1600px+).`,
+  for (const [slug, byColor] of [...grouped.groups.entries()].sort(([a], [b]) =>
+    a.localeCompare(b),
+  )) {
+    const folder = path.join(outDir, slug);
+    await mkdir(folder, { recursive: true });
+    const keep = expected.get(slug) ?? new Set<string>();
+    expected.set(slug, keep);
+
+    for (const [colorId, byIndex] of byColor) {
+      const usable = built.manifest[slug]?.[colorId] ?? 0;
+      for (const [index, { file }] of [...byIndex.entries()].sort(([a], [b]) => a - b)) {
+        if (index > usable) continue;
+        const input = path.join(srcDir, file);
+        const targets = WIDTHS.map((w) => ({ width: w, name: `${colorId}-${index}-${w}.webp` }));
+        targets.forEach((t) => keep.add(t.name));
+
+        const sourceTime = (await mtime(input)) ?? 0;
+        const upToDate = await Promise.all(
+          targets.map(async (t) => ((await mtime(path.join(folder, t.name))) ?? 0) > sourceTime),
         );
-      }
-      const folder = path.join(outDir, slug);
-      await mkdir(folder, { recursive: true });
-      for (const width of WIDTHS) {
-        const target = path.join(folder, `${index}-${width}.webp`);
-        await sharp(input)
-          .rotate()
-          .resize({ width, height: Math.round(width / ASPECT), fit: 'cover', position: 'centre' })
-          .webp({ quality: QUALITY, effort: 5 })
-          .toFile(target);
-        totalBytes += (await stat(target)).size;
-        totalFiles += 1;
-      }
-    }
+        if (!force && upToDate.every(Boolean)) {
+          skipped += 1;
+          continue;
+        }
 
-    // Only a contiguous run starting at 1 counts; a gap would leave a broken gallery slot.
-    let count = 0;
-    while (byIndex.has(count + 1)) count += 1;
-    if (count < byIndex.size) {
-      problems.push(
-        `${slug}: photos must be numbered 1,2,3… without gaps. Using the first ${count}.`,
-      );
+        const meta = await sharp(input).rotate().metadata();
+        const longSide = Math.max(meta.width ?? 0, meta.height ?? 0);
+        if (longSide < MIN_LONG_SIDE) {
+          problems.push(
+            `"${file}" is only ${longSide}px on its long side; it will look soft (aim for 1600px+).`,
+          );
+        }
+        for (const { width, name } of targets) {
+          const target = path.join(folder, name);
+          await sharp(input)
+            .rotate()
+            .resize({ width, height: Math.round(width / ASPECT), fit: 'cover', position: 'centre' })
+            .webp({ quality: QUALITY, effort: 5 })
+            .toFile(target);
+          totalBytes += (await stat(target)).size;
+          written += 1;
+        }
+      }
     }
-    if (count > 0) manifest[slug] = count;
+  }
+
+  // Remove outputs whose source photo is gone or renamed (including the old <n>-<width>.webp layout).
+  let removed = 0;
+  try {
+    for (const slug of await readdir(outDir)) {
+      const keep = expected.get(slug) ?? new Set<string>();
+      for (const name of await readdir(path.join(outDir, slug))) {
+        if (name.endsWith('.webp') && !keep.has(name)) {
+          await rm(path.join(outDir, slug, name));
+          removed += 1;
+        }
+      }
+    }
+  } catch {
+    // The output folder does not exist yet: nothing to clean.
   }
 
   await mkdir(path.dirname(manifestPath), { recursive: true });
-  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  await writeFile(manifestPath, `${JSON.stringify(built.manifest, null, 2)}\n`);
 
-  const withPhotos = Object.keys(manifest).length;
-  const missing = PRODUCTS.filter((p) => !manifest[p.slug]).map((p) => p.slug);
+  const linked = Object.entries(built.manifest).sort(([a], [b]) => a.localeCompare(b));
+  const colorCount = linked.reduce((sum, [, colors]) => sum + Object.keys(colors).length, 0);
+  const missing = colorsWithoutPhotos(PHOTO_PRODUCTS, built.manifest);
 
-  console.log(`\nProducts with real photos: ${withPhotos} / ${PRODUCTS.length}`);
   console.log(
-    `Wrote ${totalFiles} WebP files (${kb(totalBytes)} total) → ${path.relative(root, outDir)}`,
+    `\nColours with photos (available in the shop): ${colorCount}, across ${linked.length} / ${PHOTO_PRODUCTS.length} products`,
+  );
+  for (const [slug, colors] of linked) {
+    console.log(
+      `  ${slug}: ${Object.entries(colors)
+        .map(([c, n]) => `${c} (${n})`)
+        .join(', ')}`,
+    );
+  }
+  console.log(
+    `\nWrote ${written} WebP files (${kb(totalBytes)}), skipped ${skipped} unchanged, removed ${removed} stale → ${path.relative(root, outDir)}`,
   );
   console.log(`Manifest → ${path.relative(root, manifestPath)}`);
+
   if (missing.length > 0) {
-    console.log(`\nStill using placeholders (${missing.length}):\n  ${missing.join('\n  ')}`);
+    const bySlug = new Map<string, string[]>();
+    missing.forEach((m) => bySlug.set(m.slug, [...(bySlug.get(m.slug) ?? []), m.colorId]));
+    console.log(`\nColours without photos (shown as sold out): ${missing.length}`);
+    for (const [slug, colors] of bySlug) {
+      console.log(`  ${slug}: ${colors.map((c) => `${slug}-${c}-1.jpg`).join(', ')}`);
+    }
   }
   if (problems.length > 0) {
     console.log(`\nWarnings:\n  ${problems.join('\n  ')}`);

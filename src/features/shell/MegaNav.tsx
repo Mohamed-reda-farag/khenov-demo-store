@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { Locale } from '@/data/types';
-import { ArtTile } from '@/features/catalog/components/ProductImage';
+import { BannerImage } from '@/features/catalog/components/BannerImage';
 import { Link } from '@/i18n/navigation';
 import { useAsync } from '@/lib/hooks/useAsync';
 import { loadNavData } from './nav';
@@ -158,12 +158,9 @@ export function MegaNav() {
                     onClick={() => setOpen(false)}
                     className="group relative block overflow-hidden rounded-lg"
                   >
-                    <ArtTile
-                      silhouette={nav.data.promo.silhouette}
-                      tone={nav.data.promo.tone}
-                      color="#b5532e"
-                      className="h-56 w-full [&_svg]:h-full"
-                    />
+                    <span className="relative block h-56 w-full">
+                      <BannerImage banner={nav.data.promo} sizes="360px" />
+                    </span>
                     <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-900/70 to-transparent p-5 text-white">
                       <span className="block font-display text-lg font-semibold">
                         {nav.data.promo.title[locale]}

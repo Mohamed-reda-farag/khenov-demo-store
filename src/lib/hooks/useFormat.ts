@@ -3,7 +3,14 @@
 import { useLocale } from 'next-intl';
 import { useMemo } from 'react';
 import type { Locale, LocaleText } from '@/data/types';
-import { discountPercent, formatDate, formatNumber, formatPrice, formatRating } from '../format';
+import {
+  discountPercent,
+  formatDate,
+  formatList,
+  formatNumber,
+  formatPrice,
+  formatRating,
+} from '../format';
 
 /** Locale-bound formatting helpers for client components. */
 export function useFormat() {
@@ -17,6 +24,7 @@ export function useFormat() {
       rating: (value: number) => formatRating(value, locale),
       date: (value: Date | string, options?: Intl.DateTimeFormatOptions) =>
         formatDate(value, locale, options),
+      list: (items: readonly string[]) => formatList(items, locale),
       percent: (value: number) => formatNumber(value / 100, locale, { style: 'percent' }),
       discount: discountPercent,
       text: (value: LocaleText) => value[locale],

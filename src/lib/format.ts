@@ -42,6 +42,11 @@ export function formatDate(
   }).format(date);
 }
 
+/** "a, b, c" in the language's own list style (Arabic uses the Arabic comma). */
+export function formatList(items: readonly string[], locale: Locale): string {
+  return new Intl.ListFormat(intlLocale(locale), { style: 'narrow', type: 'unit' }).format(items);
+}
+
 export function discountPercent(price: number, compareAt?: number): number {
   if (!compareAt || compareAt <= price) return 0;
   return Math.round(((compareAt - price) / compareAt) * 100);

@@ -2,11 +2,11 @@
 
 import { Eye, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { photoCount } from '@/data/images';
-import { colorHasStock, defaultColor, isProductSoldOut } from '@/data/stock';
+import { galleryColorId, photoCount } from '@/data/images';
+import { colorHasStock, defaultColor, findColor, isProductSoldOut } from '@/data/stock';
 import type { Product } from '@/data/types';
 import { QuickView } from '@/features/product/QuickView';
 import { WishlistButton } from '@/features/wishlist/WishlistButton';
@@ -17,16 +17,31 @@ import { ProductImage } from './ProductImage';
 
 const IMAGE_SIZES = '(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 48vw';
 
-export function ProductCard({ product }: { product: Product }) {
+interface ProductCardProps {
+  product: Product;
+  /** Colour to start on (the wishlist remembers the one that was saved). */
+  initialColorId?: string;
+  /** Replaces the heart: a card that is already a wishlist entry has its own remove action. */
+  hideWishlist?: boolean;
+  /** Extra actions under the card, given the colour currently shown. */
+  footer?: (colorId: string) => ReactNode;
+}
+
+export function ProductCard({ product, initialColorId, hideWishlist, footer }: ProductCardProps) {
   const format = useFormat();
   const t = useTranslations('product');
   const [quickOpen, setQuickOpen] = useState(false);
   const name = format.text(product.name);
-  const color = defaultColor(product);
+  const [selectedId, setSelectedId] = useState(
+    () => findColor(product, initialColorId ?? '')?.id ?? defaultColor(product)?.id ?? '',
+  );
+  const [hoverId, setHoverId] = useState<string | null>(null);
+  const color = findColor(product, hoverId ?? selectedId) ?? product.colors[0];
   const colorHex = color?.hex ?? '#8f8e89';
+  const photoColorId = color ? galleryColorId(product, color.id) : undefined;
   const soldOut = isProductSoldOut(product);
   const percent = format.discount(product.priceEGP, product.compareAtPriceEGP);
-  const hasSecond = photoCount(product.slug) > 1;
+  const hasSecond = photoColorId !== undefined && photoCount(product.slug, photoColorId) > 1;
 
   return (
     <article className="group relative flex flex-col gap-3">
@@ -37,6 +52,7 @@ export function ProductCard({ product }: { product: Product }) {
           categoryId={product.categoryId}
           alt=""
           colorHex={colorHex}
+          colorId={photoColorId}
           sizes={IMAGE_SIZES}
           zoom={!hasSecond}
         />
@@ -48,6 +64,7 @@ export function ProductCard({ product }: { product: Product }) {
               categoryId={product.categoryId}
               alt=""
               colorHex={colorHex}
+              colorId={photoColorId}
               index={1}
               sizes={IMAGE_SIZES}
             />
@@ -62,7 +79,14 @@ export function ProductCard({ product }: { product: Product }) {
           ) : null}
         </div>
 
-        <WishlistButton productId={product.id} name={name} className="absolute end-2 top-2 z-10" />
+        {hideWishlist ? null : (
+          <WishlistButton
+            productId={product.id}
+            colorId={color?.id ?? selectedId}
+            name={name}
+            className="absolute end-2 top-2 z-10"
+          />
+        )}
         <button
           type="button"
           aria-label={t('quickView', { name })}
@@ -77,7 +101,7 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="flex flex-col gap-1">
         <h3 className="font-display text-base font-medium">
           <Link
-            href={`/product/${product.slug}`}
+            href={`/product/${product.slug}?color=${color?.id ?? selectedId}`}
             className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-offset-8"
           >
             {name}
@@ -99,28 +123,51 @@ export function ProductCard({ product }: { product: Product }) {
           </span>
         </div>
         <ul
-          className="flex items-center gap-1.5 pt-1"
+          className="relative z-10 -my-3 flex items-center"
           aria-label={t('colorsLabel', {
-            colors: product.colors
-              .map((c) =>
-                colorHasStock(c)
-                  ? format.text(c.name)
-                  : `${format.text(c.name)} (${t('soldOutColor')})`,
-              )
-              .join(', '),
+            colors: product.colors.map((c) => format.text(c.name)).join(', '),
           })}
+          onMouseLeave={() => setHoverId(null)}
         >
-          {product.colors.map((c) => (
-            <li
-              key={c.id}
-              className={`size-3.5 rounded-full border border-sand-300 ${colorHasStock(c) ? '' : 'strike-diagonal text-ink-500'}`}
-              style={{ backgroundColor: c.hex }}
-            />
-          ))}
+          {product.colors.map((c) => {
+            const out = !colorHasStock(c);
+            return (
+              <li key={c.id}>
+                <button
+                  type="button"
+                  aria-pressed={c.id === selectedId}
+                  aria-label={
+                    out ? `${format.text(c.name)} — ${t('soldOutColor')}` : format.text(c.name)
+                  }
+                  onClick={() => setSelectedId(c.id)}
+                  onMouseEnter={() => setHoverId(c.id)}
+                  onFocus={() => setHoverId(c.id)}
+                  onBlur={() => setHoverId(null)}
+                  className="grid size-11 place-items-center"
+                >
+                  <span
+                    className={`block size-3.5 rounded-full border border-sand-300 ${
+                      c.id === (hoverId ?? selectedId)
+                        ? 'ring-2 ring-ink-900 ring-offset-2 ring-offset-paper'
+                        : ''
+                    } ${out ? 'strike-diagonal text-ink-500' : ''}`}
+                    style={{ backgroundColor: c.hex }}
+                  />
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
-      <QuickView product={product} open={quickOpen} onClose={() => setQuickOpen(false)} />
+      {footer ? <div className="relative z-10">{footer(color?.id ?? selectedId)}</div> : null}
+
+      <QuickView
+        product={product}
+        colorId={color?.id}
+        open={quickOpen}
+        onClose={() => setQuickOpen(false)}
+      />
     </article>
   );
 }

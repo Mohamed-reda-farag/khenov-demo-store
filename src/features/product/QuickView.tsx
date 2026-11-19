@@ -16,16 +16,24 @@ import { usePurchase } from './usePurchase';
 /** Lets the quick view finish fading out (and hand focus back) before the cart drawer slides in. */
 const HANDOFF_MS = 280;
 
-function QuickViewBody({ product, onClose }: { product: Product; onClose: () => void }) {
+function QuickViewBody({
+  product,
+  colorId,
+  onClose,
+}: {
+  product: Product;
+  colorId: string | undefined;
+  onClose: () => void;
+}) {
   const t = useTranslations('product');
   const cart = useTranslations('cart');
   const format = useFormat();
   const openDrawer = useCartStore((s) => s.openDrawer);
-  const purchase = usePurchase(product, cart('maxReached'));
+  const purchase = usePurchase(product, cart('maxReached'), colorId);
 
   return (
     <div className="grid gap-6 p-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-8">
-      <Gallery product={product} colorHex={purchase.color.hex} />
+      <Gallery product={product} color={purchase.color} />
       <div className="flex flex-col gap-4">
         <div>
           <p className="font-display text-2xl font-semibold">{format.text(product.name)}</p>
@@ -58,10 +66,13 @@ function QuickViewBody({ product, onClose }: { product: Product; onClose: () => 
 
 export function QuickView({
   product,
+  colorId,
   open,
   onClose,
 }: {
   product: Product;
+  /** Colour to open on (the one the card or wishlist entry was showing). */
+  colorId?: string;
   open: boolean;
   onClose: () => void;
 }) {
@@ -74,7 +85,7 @@ export function QuickView({
       size="xl"
       title={t('quickViewTitle', { name: format.text(product.name) })}
     >
-      <QuickViewBody product={product} onClose={onClose} />
+      <QuickViewBody product={product} colorId={colorId} onClose={onClose} />
     </Modal>
   );
 }

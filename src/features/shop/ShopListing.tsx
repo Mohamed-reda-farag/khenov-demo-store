@@ -8,10 +8,15 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState, ErrorState } from '@/components/ui/StateBlocks';
-import { catalogRepository, type CatalogPage, type SortKey } from '@/data/repository';
+import {
+  catalogRepository,
+  searchHistoryRepository,
+  type CatalogPage,
+  type SortKey,
+} from '@/data/repository';
 import type { Category, LocaleText } from '@/data/types';
 import { ProductCard, ProductCardSkeleton } from '@/features/catalog/components/ProductCard';
-import { usePathname, useRouter } from '@/i18n/navigation';
+import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { useAsync } from '@/lib/hooks/useAsync';
 import { useFormat } from '@/lib/hooks/useFormat';
 import { ActiveFilters } from './ActiveFilters';
@@ -36,6 +41,8 @@ interface ShopListingProps {
   scope: ShopScope;
   /** Title and intro for /category/x and /collection/y (known at build time). */
   heading?: { name: LocaleText; blurb: LocaleText };
+  /** 'search' is the /search page: the title echoes the query and an empty result suggests categories. */
+  mode?: 'search';
 }
 
 interface Loaded {
@@ -74,8 +81,9 @@ export function ShopListingSkeleton() {
   );
 }
 
-export function ShopListing({ scope, heading }: ShopListingProps) {
+export function ShopListing({ scope, heading, mode }: ShopListingProps) {
   const t = useTranslations('shop');
+  const search = useTranslations('search');
   const nav = useTranslations('nav');
   const states = useTranslations('states');
   const common = useTranslations('common');
@@ -127,12 +135,19 @@ export function ShopListing({ scope, heading }: ShopListingProps) {
     }
   }, [result.status]);
 
-  const title = heading ? format.text(heading.name) : t('title');
+  const searching = mode === 'search';
+  const title = heading
+    ? format.text(heading.name)
+    : searching
+      ? view.q
+        ? search('resultsTitle', { q: view.q })
+        : search('title')
+      : t('title');
   const filterCount = activeFilterCount(view, scope);
   const crumbs = [
     { label: nav('home'), href: '/' },
     ...(scope.kind === 'all'
-      ? [{ label: t('title') }]
+      ? [{ label: searching ? search('title') : t('title') }]
       : [{ label: nav('shop'), href: '/shop' }, { label: title }]),
   ];
 
@@ -169,7 +184,13 @@ export function ShopListing({ scope, heading }: ShopListingProps) {
         </aside>
 
         <section className="min-w-0 flex-1" aria-label={t('results')}>
-          <SearchBox value={view.q} onSearch={(q) => update({ q })} />
+          <SearchBox
+            value={view.q}
+            onSearch={(q) => {
+              if (searching && q) void searchHistoryRepository.add(q);
+              update({ q });
+            }}
+          />
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -254,17 +275,50 @@ export function ShopListing({ scope, heading }: ShopListingProps) {
 
             {result.status !== 'error' && loaded ? (
               loaded.page.total === 0 ? (
-                <EmptyState
-                  title={t('emptyTitle')}
-                  body={t('emptyBody')}
-                  action={
-                    filterCount > 0 ? (
-                      <Button variant="secondary" onClick={clearAll}>
-                        {t('resetFilters')}
-                      </Button>
-                    ) : undefined
-                  }
-                />
+                <>
+                  <EmptyState
+                    title={
+                      searching && view.q
+                        ? search('noResultsTitle', { q: view.q })
+                        : t('emptyTitle')
+                    }
+                    body={searching ? search('noResultsBody') : t('emptyBody')}
+                    action={
+                      filterCount > 0 ? (
+                        <Button variant="secondary" onClick={clearAll}>
+                          {t('resetFilters')}
+                        </Button>
+                      ) : undefined
+                    }
+                  />
+                  {searching ? (
+                    <div className="-mt-8 pb-8 text-center">
+                      <h3 className="pb-3 text-xs font-semibold tracking-wide text-ink-500">
+                        {search('tryCategories')}
+                      </h3>
+                      <ul className="flex flex-wrap justify-center gap-2">
+                        {loaded.categories.map((category) => (
+                          <li key={category.id}>
+                            <Link
+                              href={`/category/${category.id}`}
+                              className="inline-flex min-h-11 items-center rounded-pill border border-sand-300 px-4 text-sm hover:border-ink-900"
+                            >
+                              {format.text(category.name)}
+                            </Link>
+                          </li>
+                        ))}
+                        <li>
+                          <Link
+                            href="/shop"
+                            className="inline-flex min-h-11 items-center rounded-pill border border-ink-900 px-4 text-sm"
+                          >
+                            {search('browseAll')}
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                  ) : null}
+                </>
               ) : (
                 <>
                   <ul

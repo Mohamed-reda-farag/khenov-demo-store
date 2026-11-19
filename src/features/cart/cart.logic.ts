@@ -1,8 +1,6 @@
+import { MAX_PER_LINE } from '@/data/limits';
 import { findColor, sizeStock } from '@/data/stock';
 import type { CartLine, Product } from '@/data/types';
-
-/** Per-line quantity cap (also bounded by the stock of the chosen size). */
-export const MAX_PER_LINE = 10;
 
 export const lineId = (productId: string, colorId: string, size: number): string =>
   `${productId}:${colorId}:${size}`;
@@ -55,6 +53,25 @@ export function addLine(
   };
 }
 
+/**
+ * Turns the lines of an earlier order into cart lines that match today's stock and prices.
+ * Lines whose colour or size is gone are returned in `skipped`; quantities are capped to stock.
+ */
+export function reorderLines(
+  orderLines: readonly CartLine[],
+  products: readonly Product[],
+): { lines: CartLine[]; skipped: CartLine[] } {
+  const lines: CartLine[] = [];
+  const skipped: CartLine[] = [];
+  for (const old of orderLines) {
+    const product = products.find((p) => p.id === old.productId);
+    const rebuilt = product ? buildLine(product, old.colorId, old.size, old.quantity) : null;
+    if (rebuilt) lines.push(rebuilt);
+    else skipped.push(old);
+  }
+  return { lines, skipped };
+}
+
 export function setLineQuantity(
   lines: readonly CartLine[],
   id: string,
@@ -63,6 +80,24 @@ export function setLineQuantity(
   return lines.map((l) =>
     l.id === id ? { ...l, quantity: Math.min(Math.max(1, quantity), l.maxQuantity) } : l,
   );
+}
+
+/** Applies fresh catalogue data to a line (new stock cap and/or price), keeping the quantity valid. */
+export function refreshLine(
+  lines: readonly CartLine[],
+  id: string,
+  patch: { maxQuantity?: number; unitPriceEGP?: number },
+): CartLine[] {
+  return lines.map((l) => {
+    if (l.id !== id) return l;
+    const maxQuantity = Math.max(1, patch.maxQuantity ?? l.maxQuantity);
+    return {
+      ...l,
+      maxQuantity,
+      quantity: Math.min(l.quantity, maxQuantity),
+      unitPriceEGP: patch.unitPriceEGP ?? l.unitPriceEGP,
+    };
+  });
 }
 
 export function removeLine(lines: readonly CartLine[], id: string): CartLine[] {

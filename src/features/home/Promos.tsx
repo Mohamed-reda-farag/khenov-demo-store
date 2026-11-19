@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import type { Banner } from '@/data/types';
 import { Link } from '@/i18n/navigation';
 import { useFormat } from '@/lib/hooks/useFormat';
-import { BannerImage } from './BannerImage';
+import { BannerImage } from '@/features/catalog/components/BannerImage';
 
 /** Full-width dark strip (shipping promise). */
 export function PromoStrip({ banner }: { banner: Banner }) {

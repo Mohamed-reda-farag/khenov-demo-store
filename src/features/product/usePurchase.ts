@@ -4,7 +4,8 @@ import { useCallback, useState } from 'react';
 import { toast } from '@/components/ui/toast';
 import { allSizes, defaultColor, findColor, sizeStock } from '@/data/stock';
 import type { Product, ProductColor } from '@/data/types';
-import { MAX_PER_LINE, maxQuantityFor } from '@/features/cart/cart.logic';
+import { MAX_PER_LINE } from '@/data/limits';
+import { maxQuantityFor } from '@/features/cart/cart.logic';
 import { useCartStore } from '@/features/cart/cart.store';
 
 export type SubmitResult = 'added' | 'merged' | 'capped' | 'needs-size' | 'unavailable';
@@ -31,8 +32,14 @@ export interface Purchase {
 }
 
 /** Selection state shared by the product page, the quick view and the sticky buy bar. */
-export function usePurchase(product: Product, maxReachedMessage: string): Purchase {
-  const [colorId, setColorId] = useState(() => defaultColor(product)?.id ?? '');
+export function usePurchase(
+  product: Product,
+  maxReachedMessage: string,
+  initialColorId?: string,
+): Purchase {
+  const [colorId, setColorId] = useState(
+    () => findColor(product, initialColorId)?.id ?? defaultColor(product)?.id ?? '',
+  );
   const [size, setSize] = useState<number | null>(null);
   const [quantity, setQuantityState] = useState(1);
   const [sizeError, setSizeError] = useState(false);

@@ -79,8 +79,19 @@ Also update `PROJECT_STATE.md` in the repo root (done / next / decisions / how t
 - Architecture is enforced by ESLint: UI code may not touch `localStorage`/`sessionStorage`, import `@/lib/demo/storage`, or import `@/data/seed` — it must go through `@/data/repository`.
 - Photos: real photos are optional; until they exist a generated placeholder is shown (see `docs/IMAGES.md`).
 - Build-time exception to the seed rule: `@/data/repository/catalog.static` gives `generateStaticParams` and `generateMetadata` synchronous, delay-free reads. Runtime UI must use the async repositories.
-- Stock is per colour and size (`Product.colors[].sizes`). Photos are per product, so a colour swatch changes availability and the placeholder tint, not the photograph.
+- Stock is per colour and size (`Product.colors[].sizes`). Photos are per colour (M2): choosing a colour switches the gallery, card, cart, wishlist and order images.
 - Shop state lives in the URL (`q, category, size, color, min, max, stock, sale, new, sort, page`); `src/features/shop/shop-params.ts` is the only place that parses or writes it.
 - Overlays render through `Portal` (outside `#app-shell`, which goes `inert` while one is open). Only the topmost overlay reacts to Esc/Tab.
 - Reviews are fictional samples, labelled as such. No "verified buyer" claims, no real people, no structured data (JSON-LD) is emitted.
-- Only the colour that appears in a product's photos is sold (`src/data/seed/photo-colors.ts`); other colours are shown as sold out until their photos exist.
+- A colour is sold only if it has photos (derived from `src/data/image-manifest.json`); other colours are shown as sold out. `src/data/seed/photo-colors.ts` is only the fallback for older `<slug>-<n>` file names, used by `npm run images:optimize`.
+
+## M2 addenda (cart, checkout, orders, account, wishlist, search)
+
+- New dependency: **zod 4** (form validation, loaded only by the checkout and account routes). Nothing else was added.
+- Business rules are pure functions in `src/data/rules/` (promo, shipping, totals, stock check, order status, order placement, card helpers, address and search-history lists), each with unit tests. UI and repositories call them; they never re-implement them.
+- Card data is never sent, logged or stored: it lives in component state only and is cleared when an order is placed. Orders keep only the payment method (`card` or `cod`). Test cards: approved `4242 4242 4242 4242`, declined `4000 0000 0000 0002`.
+- Orders are read at `/order/?id=<ATR-xxxxx>` (query parameter, so the static export needs no dynamic route). Order status is derived from timestamps (placed 0 s, processing +30 s, shipped +10 min, delivered +40 min); cancel is allowed only while processing.
+- Demo promo codes: `ATHAR10`, `WELCOME150`, `FREESHIP` (shown as hints) and `SUMMER25` (expired, not hinted).
+- Persisted shapes changed in M2 (wishlist entries, orders, addresses, recent searches, cart promo), so `SEED_VERSION = 4`.
+- Photo file names: `<slug>-<colorId>-<n>.<ext>` (new) or `<slug>-<n>.<ext>` (older, colour taken from `photo-colors.ts`). The manifest shape is `{ slug: { colorId: photoCount } }`; run `npm run images:optimize` after updating.
+- Overlays that must be clickable while the shell is `inert` render through `Portal` (including `ConfirmDialog`).

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ratingDistribution } from './rating';
-import { PRODUCTS } from './seed';
+import { TEST_PRODUCTS as PRODUCTS } from './testing';
 import {
   LOW_STOCK_MAX,
   allSizes,

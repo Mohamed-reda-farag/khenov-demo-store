@@ -43,6 +43,8 @@ export type Suggestion =
 export interface CatalogRepository {
   list(query?: CatalogQuery): Promise<CatalogPage>;
   getBySlug(slug: string): Promise<Product | null>;
+  /** Products for the given ids (unknown ids are left out), e.g. to re-check a cart. */
+  getByIds(ids: readonly string[]): Promise<Product[]>;
   getRelated(productId: string, limit?: number): Promise<Product[]>;
   getFeatured(limit?: number): Promise<Product[]>;
   getNewArrivals(limit?: number): Promise<Product[]>;

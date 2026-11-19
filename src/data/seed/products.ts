@@ -1,6 +1,6 @@
+import { hasPhotos, IMAGE_MANIFEST, type PhotoManifest } from '../images';
 import type { LocaleText, Product, ProductColor, SizeStock } from '../types';
 import { COLORS, type ColorKey } from './catalog-meta';
-import { PHOTO_COLORS } from './photo-colors';
 
 /* ---------- deterministic stock generation (same result on every build) ---------- */
 
@@ -78,12 +78,12 @@ interface ProductInput {
 }
 
 /**
- * Each colour gets its own deterministic stock. Only the colour that appears in the product's
- * photos is sold; every other colour is sold out until photos exist for it.
+ * Each colour gets its own deterministic stock. A colour is sold only when it has photos
+ * (see data/images.ts); every other colour is sold out until photos exist for it.
  */
-function buildColors(input: ProductInput, index: number): ProductColor[] {
+function buildColors(input: ProductInput, index: number, manifest: PhotoManifest): ProductColor[] {
   return input.colors.map((key, colorIndex) => {
-    const soldOut = input.profile === 'soldout' || key !== PHOTO_COLORS[input.slug];
+    const soldOut = input.profile === 'soldout' || !hasPhotos(input.slug, key, manifest);
     const profile: StockProfile = soldOut ? 'soldout' : (input.profile ?? 'normal');
     return {
       ...COLORS[key],
@@ -92,7 +92,7 @@ function buildColors(input: ProductInput, index: number): ProductColor[] {
   });
 }
 
-function product(input: ProductInput, index: number): Product {
+function product(input: ProductInput, index: number, manifest: PhotoManifest): Product {
   const number = String(index + 1).padStart(3, '0');
   return {
     id: `p${number}`,
@@ -106,7 +106,7 @@ function product(input: ProductInput, index: number): Product {
     materials: input.materials,
     priceEGP: input.price,
     ...(input.compareAt ? { compareAtPriceEGP: input.compareAt } : {}),
-    colors: buildColors(input, index),
+    colors: buildColors(input, index, manifest),
     rating: input.rating,
     reviewCount: input.reviews,
     isNew: input.isNew ?? false,
@@ -585,4 +585,11 @@ const INPUTS: readonly ProductInput[] = [
   },
 ];
 
-export const PRODUCTS: readonly Product[] = INPUTS.map(product);
+/** The catalogue as the given photo manifest makes it (tests pass their own manifest). */
+export const buildProducts = (manifest: PhotoManifest): Product[] =>
+  INPUTS.map((input, index) => product(input, index, manifest));
+
+export const PRODUCTS: readonly Product[] = buildProducts(IMAGE_MANIFEST);
+
+/** Slug and colour ids per product, for the photo naming rules. */
+export const PHOTO_PRODUCTS = INPUTS.map((input) => ({ slug: input.slug, colorIds: input.colors }));

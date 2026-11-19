@@ -9,8 +9,9 @@ Brand is invented: **ATHAR / أثر**. All data is fictional.
 | ------------------------------------------------------------- | -------- |
 | M0 Foundation                                                 | **Done** |
 | M1 Home + Shop + filters + product page                       | **Done** |
-| M2 Cart, checkout, orders, wishlist, search                   | Next     |
-| M3 Polish (transitions, RTL/a11y audit, Lighthouse ≥ 90, 404) | —        |
+| M1.1 Per-colour sold-out rule                                 | **Done** |
+| M2 Cart, checkout, orders, wishlist, search, colour photos    | **Done** |
+| M3 Polish (transitions, RTL/a11y audit, Lighthouse ≥ 90, 404) | Next     |
 | M4 Static build, hosting, README, portfolio pack              | —        |
 
 ## Done in M0
@@ -41,10 +42,29 @@ Brand is invented: **ATHAR / أثر**. All data is fictional.
   wishlist / reviews / newsletter repositories. `SEED_VERSION = 3`.
 - **Tooling**: `npm run size` (initial JS per route, since Next 16 no longer prints it). 100 unit tests.
 
+## Done in M2
+
+- **Cart** (`/cart` + mini-cart drawer, same line component): per-size stock limit with a message, remove and
+  move-to-wishlist with Undo, promo box, order summary, free-shipping progress, stock re-validation against the
+  catalogue (inline messages, never a crash).
+- **Checkout** (`/checkout`, one page, guest): contact, address (saved-address reuse), shipping, payment (demo card
+  form + cash on delivery), Zod validation with an error summary, double-submit guard, simulated processing,
+  declined-card and error paths, collapsible summary on phones. Card data is never stored or logged.
+- **Orders** (`/order/?id=…`, list under account): confirmation, simulated status timeline, cancel (while
+  processing) with Undo, reorder.
+- **Account-lite** (`/account`): orders, saved addresses (add, edit, delete with Undo), language, reset. "Demo user" only.
+- **Wishlist** (`/wishlist`): saved colour kept, remove with Undo, add to cart through a size picker, header count
+  badge, heart on the product page.
+- **Search**: header combobox (recent searches, suggestions, keyboard navigation, no-match help) and `/search`
+  results page that reuses `ShopListing`.
+- **Colour photos**: `<slug>-<colorId>-<n>` files, manifest `slug → colour → count`, a colour is sold only if it has
+  photos, gallery / card / cart / wishlist / orders follow the colour. Script reports missing colours.
+- Rules in `src/data/rules` with tests. `SEED_VERSION = 4`. New dependency: zod.
+
 ## Next
 
-M2 — Cart page, checkout (mock), orders, wishlist page, search page. Routes still served by the "coming soon"
-placeholder: `search`, `wishlist`, `account`, `cart`, `checkout`, `help/*` (`src/app/[locale]/[...slug]/page.tsx`).
+M3 — polish: page transitions, full RTL and accessibility audit, Lighthouse, 404 and error pages, help pages
+(`help/*` still use the "coming soon" placeholder, `src/app/[locale]/[...slug]/page.tsx`).
 
 ## Decisions
 
@@ -64,6 +84,10 @@ placeholder: `search`, `wishlist`, `account`, `cart`, `checkout`, `help/*` (`src
 - **No JSON-LD:** structured data was left out on purpose (fictional store, nothing accurate to claim).
 - **TypeScript pinned to 5.9, ESLint to 9:** TypeScript 7 and ESLint 10 are not yet supported by the tooling.
 
+- M2: single-page checkout (all errors visible together, fewer taps); orders at `/order/?id=` (static export, no dynamic
+  route); demo orders do not reduce catalogue stock (stock is re-checked when an order is placed); Zod only loads on the
+  checkout and account routes; the search panel is loaded on first use.
+
 ## How to run
 
 ```powershell
@@ -74,9 +98,11 @@ npm run build        # static export to .\out
 npm run preview      # serve .\out at http://localhost:4173
 ```
 
+Photos: `docs/IMAGES.md` (`npm run images:optimize` after adding `<slug>-<colorId>-<n>.jpg`).
+
 Useful URLs: `/ar/?demo=fast` (no delays), `/en/?demo=error` (force error states), `?demo=off` (clear).
 
 ## Seed version
 
-`SEED_VERSION = 3` in `src/lib/demo/config.ts`. Bump it whenever seed data or persisted shapes change;
+`SEED_VERSION = 4` in `src/lib/demo/config.ts`. Bump it whenever seed data or persisted shapes change;
 every visitor is reseeded automatically and old keys are purged.

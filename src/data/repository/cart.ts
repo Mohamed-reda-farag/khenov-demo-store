@@ -7,4 +7,7 @@ import type { CartLine } from '../types';
 export interface CartRepository {
   load(): Promise<CartLine[]>;
   save(lines: readonly CartLine[]): Promise<void>;
+  /** The promo code typed in the cart (kept so it survives a reload). */
+  loadPromoCode(): Promise<string | null>;
+  savePromoCode(code: string | null): Promise<void>;
 }

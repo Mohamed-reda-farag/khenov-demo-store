@@ -1,26 +1,89 @@
 {
-  "alex-work": 3,
-  "atlas-chelsea": 3,
-  "cairo-tempo": 3,
-  "corniche-hi": 3,
-  "dahab-strap": 3,
-  "dune-court": 3,
-  "garden-city-mule": 3,
-  "giza-oxford": 3,
-  "heliopolis-penny": 3,
-  "khan-derby": 3,
-  "luxor-leather": 3,
-  "maadi-retro": 3,
-  "marathon-pro": 3,
-  "marsa-cork": 3,
-  "nile-low": 3,
-  "nile-trail": 3,
-  "oasis-leather": 3,
-  "pace-light": 3,
-  "sahel-slide": 3,
-  "sinai-hiker": 3,
-  "siwa-chukka": 3,
-  "souk-canvas": 3,
-  "sprint-delta": 3,
-  "zamalek-loafer": 3
+  "alex-work": {
+    "brown": 3
+  },
+  "atlas-chelsea": {
+    "black": 3,
+    "tan": 2
+  },
+  "cairo-tempo": {
+    "stone": 3,
+    "terracotta": 1
+  },
+  "corniche-hi": {
+    "black": 3,
+    "navy": 1
+  },
+  "dahab-strap": {
+    "black": 3
+  },
+  "dune-court": {
+    "black": 1,
+    "ivory": 1,
+    "sand": 3
+  },
+  "garden-city-mule": {
+    "black": 3
+  },
+  "giza-oxford": {
+    "black": 3
+  },
+  "heliopolis-penny": {
+    "tan": 3
+  },
+  "khan-derby": {
+    "black": 1,
+    "brown": 3
+  },
+  "luxor-leather": {
+    "tan": 3
+  },
+  "maadi-retro": {
+    "cobalt": 3,
+    "navy": 1,
+    "terracotta": 1
+  },
+  "marathon-pro": {
+    "black": 1,
+    "cobalt": 3,
+    "terracotta": 1
+  },
+  "marsa-cork": {
+    "beige": 3
+  },
+  "nile-low": {
+    "sand": 1,
+    "white": 3
+  },
+  "nile-trail": {
+    "navy": 3
+  },
+  "oasis-leather": {
+    "black": 3,
+    "ivory": 1
+  },
+  "pace-light": {
+    "ivory": 3
+  },
+  "sahel-slide": {
+    "black": 3
+  },
+  "sinai-hiker": {
+    "black": 3
+  },
+  "siwa-chukka": {
+    "beige": 3,
+    "black": 1,
+    "tan": 1
+  },
+  "souk-canvas": {
+    "navy": 3,
+    "terracotta": 1
+  },
+  "sprint-delta": {
+    "black": 3
+  },
+  "zamalek-loafer": {
+    "black": 3
+  }
 }

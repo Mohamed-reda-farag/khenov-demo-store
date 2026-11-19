@@ -3,30 +3,35 @@
 import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState, type KeyboardEvent } from 'react';
-import { photoCount } from '@/data/images';
-import type { Product } from '@/data/types';
+import { galleryColorId, photoCount } from '@/data/images';
+import type { Product, ProductColor } from '@/data/types';
 import { ProductImage } from '@/features/catalog/components/ProductImage';
 import { useFormat } from '@/lib/hooks/useFormat';
 import { Lightbox } from './Lightbox';
 
 interface GalleryProps {
   product: Product;
-  /** Hex of the selected colour, used by the generated placeholder. */
-  colorHex: string;
+  /** The selected colour: its photos are shown (or the first colour that has photos). */
+  color: ProductColor;
   /** Load the first image eagerly (only the page's LCP image should). */
   priority?: boolean;
   className?: string;
 }
 
-/**
- * Main image + thumbnails. Real photos are shared by all colours (they are stock photos), so a
- * swatch changes availability and the placeholder tint, not the photograph.
- */
-export function Gallery({ product, colorHex, priority = false, className = '' }: GalleryProps) {
+/** Main image + thumbnails of the selected colour; selecting another colour swaps them all. */
+export function Gallery({ product, color, priority = false, className = '' }: GalleryProps) {
   const t = useTranslations('product');
   const format = useFormat();
-  const count = Math.max(1, photoCount(product.slug));
+  const colorHex = color.hex;
+  const photoColorId = galleryColorId(product, color.id);
+  const count = Math.max(1, photoColorId ? photoCount(product.slug, photoColorId) : 0);
+  const shownColor = product.colors.find((c) => c.id === photoColorId);
   const [index, setIndex] = useState(0);
+  const [shownFor, setShownFor] = useState(photoColorId);
+  if (shownFor !== photoColorId) {
+    setShownFor(photoColorId);
+    setIndex(0);
+  }
   const [zoomOpen, setZoomOpen] = useState(false);
   const rtl = format.locale === 'ar';
   const name = format.text(product.name);
@@ -78,6 +83,7 @@ export function Gallery({ product, colorHex, priority = false, className = '' }:
                 categoryId={product.categoryId}
                 alt={t('photoAlt', { name, n: format.number(i + 1) })}
                 colorHex={colorHex}
+                colorId={photoColorId}
                 index={i}
                 sizes="(min-width: 1024px) 45vw, (min-width: 768px) 55vw, 100vw"
                 priority={priority && i === 0}
@@ -117,6 +123,14 @@ export function Gallery({ product, colorHex, priority = false, className = '' }:
             </>
           ) : null}
         </div>
+        {shownColor && shownColor.id !== color.id ? (
+          <p className="mt-2 text-sm text-ink-500">
+            {t('photoFallback', {
+              color: format.text(color.name),
+              shown: format.text(shownColor.name),
+            })}
+          </p>
+        ) : null}
         <p className="sr-only" aria-live="polite">
           {t('photoStatus', { n: format.number(index + 1), total: format.number(count) })}
         </p>
@@ -144,6 +158,7 @@ export function Gallery({ product, colorHex, priority = false, className = '' }:
                   categoryId={product.categoryId}
                   alt=""
                   colorHex={colorHex}
+                  colorId={photoColorId}
                   index={i}
                   sizes="80px"
                 />
@@ -157,6 +172,7 @@ export function Gallery({ product, colorHex, priority = false, className = '' }:
         <Lightbox
           product={product}
           colorHex={colorHex}
+          photoColorId={photoColorId}
           count={count}
           index={index}
           onIndexChange={setIndex}
