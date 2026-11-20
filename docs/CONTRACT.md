@@ -95,3 +95,25 @@ Also update `PROJECT_STATE.md` in the repo root (done / next / decisions / how t
 - Persisted shapes changed in M2 (wishlist entries, orders, addresses, recent searches, cart promo), so `SEED_VERSION = 4`.
 - Photo file names: `<slug>-<colorId>-<n>.<ext>` (new) or `<slug>-<n>.<ext>` (older, colour taken from `photo-colors.ts`). The manifest shape is `{ slug: { colorId: photoCount } }`; run `npm run images:optimize` after updating.
 - Overlays that must be clickable while the shell is `inert` render through `Portal` (including `ConfirmDialog`).
+
+## M3 addenda (polish, performance, help, SEO)
+
+- **Static-first data:** pages whose content is known at build time pass it to the client as `initial` (see
+  `useAsync(key, load, initial)`). `initial` answers only the first key and never while `?demo=error` is on. Anything the
+  shopper triggers (filter, sort, page, retry, add to cart) still goes through the repository with the simulated delay.
+- **Lazy code:** anything that is not on screen at first paint (drawers, dialogs, lightbox, seed data, below-the-fold
+  sections) is a dynamic import. Use `useEverTrue(open)` to mount it on first open and `next/dynamic` with
+  `ssr: false`; preload on hover/focus.
+- **Motion:** opacity and transform only, never from fully transparent on first paint, never a transform on a wrapper that
+  has `position: fixed` children. Everything is covered by the global `prefers-reduced-motion` rule.
+- **Layout shift:** loading, empty and error states of a page share one minimum height; a skeleton must not be taller than
+  the state it is replaced by.
+- **Headings:** every page has exactly one `h1`, including its empty and error states (`EmptyState`/`ErrorState` take `as="h1"`).
+- **Focus:** after a client navigation focus moves to the new `h1` (`RouteFocus`); `main` is `tabIndex=-1`.
+- **Buttons while busy** use `aria-disabled` (not `disabled`) so focus is not lost.
+- **Accessible names** must contain the visible text (language switcher).
+- **Facts shown in copy come from the rules** (free-shipping amount, shipping prices and days), never typed twice.
+- **CSS layers:** element rules in `base.css` go inside `@layer base`; unlayered rules beat Tailwind utilities.
+- **SEO:** use `pageMetadata()` from `src/lib/seo.ts` for every page. Share images and icons go through `withBase()`.
+  The site is `noindex` unless `NEXT_PUBLIC_ALLOW_INDEXING=true`.
+- **Help copy** that states a policy is fictional and says so on every help page.

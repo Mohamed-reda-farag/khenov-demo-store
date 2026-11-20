@@ -17,6 +17,8 @@ interface ProductImageProps {
   /** next/image `sizes` for the real photo. */
   sizes: string;
   priority?: boolean;
+  /** Called once the photo has loaded. */
+  onLoaded?: () => void;
   /** Slow scale-up when a parent with the `group` class is hovered. */
   zoom?: boolean;
   /** Fill the parent (which must be positioned) instead of owning a 4:5 box. */
@@ -37,6 +39,7 @@ export function ProductImage({
   index = 0,
   sizes,
   priority = false,
+  onLoaded,
   zoom = false,
   fill = false,
   className = '',
@@ -57,6 +60,7 @@ export function ProductImage({
           sizes={sizes}
           priority={priority}
           fetchPriority={priority ? 'high' : undefined}
+          onLoad={onLoaded}
           className={`object-cover ${motion}`}
         />
       ) : (

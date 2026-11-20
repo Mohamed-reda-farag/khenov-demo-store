@@ -5,14 +5,14 @@ Brand is invented: **ATHAR / أثر**. All data is fictional.
 
 ## Status
 
-| Milestone                                                     | State    |
-| ------------------------------------------------------------- | -------- |
-| M0 Foundation                                                 | **Done** |
-| M1 Home + Shop + filters + product page                       | **Done** |
-| M1.1 Per-colour sold-out rule                                 | **Done** |
-| M2 Cart, checkout, orders, wishlist, search, colour photos    | **Done** |
-| M3 Polish (transitions, RTL/a11y audit, Lighthouse ≥ 90, 404) | Next     |
-| M4 Static build, hosting, README, portfolio pack              | —        |
+| Milestone                                                  | State    |
+| ---------------------------------------------------------- | -------- |
+| M0 Foundation                                              | **Done** |
+| M1 Home + Shop + filters + product page                    | **Done** |
+| M1.1 Per-colour sold-out rule                              | **Done** |
+| M2 Cart, checkout, orders, wishlist, search, colour photos | **Done** |
+| M3 Polish, performance, help pages, 404, SEO               | **Done** |
+| M4 Static build, hosting, README, portfolio pack           | Next     |
 
 ## Done in M0
 
@@ -61,10 +61,41 @@ Brand is invented: **ATHAR / أثر**. All data is fictional.
   photos, gallery / card / cart / wishlist / orders follow the colour. Script reports missing colours.
 - Rules in `src/data/rules` with tests. `SEED_VERSION = 4`. New dependency: zod.
 
+## Done in M3
+
+- **Performance** (mobile Lighthouse on a local static server, simulated slow 4G): Home / Shop / Product / Cart / Checkout
+  now 89–99 (were 76–88), CLS 0 everywhere (cart was 0.107), shared JS 225.6 → 215.8 kB gzip. The framework itself is
+  about three quarters of that and cannot be cut; the rest came from moving work off the shared path.
+  - _Static-first rendering_: Home, Shop, Category, Collection and Product compute their data at build time
+    (`catalogStatic`) and pass it as `initial` to `useAsync`, so the exported HTML already contains the real hero, cards,
+    product photo, title and price. The demo delay still applies to every later request (filter, sort, page, retry) and
+    `?demo=error` ignores `initial`, so error states stay reachable.
+  - The seed catalogue is a lazy chunk (`import('../seed')` inside the repositories): pages built from static data never download it.
+  - Cart drawer, mobile menu, reset dialog, quick view, lightbox and size-guide modal are `next/dynamic` chunks, loaded on
+    first intent (hover / focus) or first open and mounted only after that. Mega-nav data loads on first open.
+  - Reviews and Related load when they approach the viewport (`DeferUntilVisible`). The card's hover photo is only mounted
+    after hover/focus. Only the first two shop cards and the product's first photo are `priority`.
+  - Route enter animation is opacity-only (a transform on the wrapper trapped the sticky buy bar and caused a layout shift).
+  - Skeletons and empty states share a `min-h-[60svh]` frame and the phone skeletons are no taller than the empty state.
+- **Motion**: one fade for route changes, count-badge pop (only on increases after load) and heart pop (only when the shopper
+  saves), all transform/opacity, all off under `prefers-reduced-motion`.
+- **Help pages** (`/help/shipping|returns|size-guide|contact|privacy`, `src/features/help`): numbers come from the same rules as
+  checkout (prices, days, free-shipping threshold), the size table is shared with the product modal, contact form is UI-only
+  with a validated error summary and an honest "nothing was sent" confirmation.
+- **404 and errors**: localized `[locale]/not-found.tsx`, `[locale]/error.tsx` (header and footer stay), and a bilingual
+  `global-not-found.tsx` for unmatched addresses (`experimental.globalNotFound`) because a static host cannot know the language.
+- **Search**: each recent search has an X button for mouse and touch; keyboard Delete still works.
+- **A11y / RTL audit** of every screen in both languages with axe (wcag2a/aa/21aa + best-practice): 0 violations at the end
+  (see the M3 report for the list of fixes). Focus moves to the new page's `h1` after a route change.
+- **SEO**: unique title and description per page and language, canonical + hreflang (+ x-default) on every page, share image
+  and favicon URLs respect `NEXT_PUBLIC_BASE_PATH`. **Everything is `noindex`** (fictional store); set
+  `NEXT_PUBLIC_ALLOW_INDEXING=true` at build time to flip it. No sitemap and no robots.txt: a `Disallow` would hide the
+  `noindex` tag from crawlers, and a sitemap would contradict it.
+- Tests: 192 (adds `useAsync` initial-data behaviour in jsdom and the SEO helpers). No new dependencies.
+
 ## Next
 
-M3 — polish: page transitions, full RTL and accessibility audit, Lighthouse, 404 and error pages, help pages
-(`help/*` still use the "coming soon" placeholder, `src/app/[locale]/[...slug]/page.tsx`).
+M4 — static build and hosting notes, README, portfolio pack (screenshots, recording with `?demo=fast`), final QA on real photos.
 
 ## Decisions
 

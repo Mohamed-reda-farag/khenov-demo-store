@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { CartView } from '@/features/cart/CartView';
 import { routing } from '@/i18n/routing';
+import { pageMetadata } from '@/lib/seo';
 
 type Params = Promise<{ locale: string }>;
 
@@ -13,12 +14,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const t = await getTranslations({ locale, namespace: 'cart' });
   const brand = await getTranslations({ locale, namespace: 'brand' });
   const title = `${t('title')} — ${brand('name')}`;
-  return {
-    title,
-    description: t('metaDescription'),
-    openGraph: { title, description: t('metaDescription'), locale },
-    robots: { index: false },
-  };
+  return pageMetadata({ locale, path: '/cart/', title, description: t('metaDescription') });
 }
 
 export default async function Page({ params }: { params: Params }) {

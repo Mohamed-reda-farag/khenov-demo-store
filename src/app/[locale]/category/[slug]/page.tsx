@@ -4,8 +4,11 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { catalogStatic } from '@/data/repository/catalog.static';
-import { ShopListing, ShopListingSkeleton } from '@/features/shop/ShopListing';
+import { ShopListing } from '@/features/shop/ShopListing';
+import { ShopListingFallback } from '@/features/shop/ShopListingFallback';
+import { shopInitial } from '@/features/shop/shop-initial';
 import { routing } from '@/i18n/routing';
+import { pageMetadata } from '@/lib/seo';
 
 export const dynamicParams = false;
 
@@ -23,11 +26,12 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!hasLocale(routing.locales, locale) || !category) return {};
   const brand = await getTranslations({ locale, namespace: 'brand' });
   const title = `${category.name[locale]} — ${brand('name')}`;
-  return {
+  return pageMetadata({
+    locale,
+    path: `/category/${slug}/`,
     title,
     description: category.blurb[locale],
-    openGraph: { title, description: category.blurb[locale], locale },
-  };
+  });
 }
 
 export default async function CategoryPage({ params }: { params: Params }) {
@@ -35,9 +39,19 @@ export default async function CategoryPage({ params }: { params: Params }) {
   const category = catalogStatic.getCategory(slug);
   if (!hasLocale(routing.locales, locale) || !category) notFound();
   setRequestLocale(locale);
+  const initial = shopInitial({ kind: 'category', id: category.id });
   return (
-    <Suspense fallback={<ShopListingSkeleton />}>
+    <Suspense
+      fallback={
+        <ShopListingFallback
+          scope={{ kind: 'category', id: category.id }}
+          heading={{ name: category.name, blurb: category.blurb }}
+          initial={initial}
+        />
+      }
+    >
       <ShopListing
+        initial={initial}
         scope={{ kind: 'category', id: category.id }}
         heading={{ name: category.name, blurb: category.blurb }}
       />

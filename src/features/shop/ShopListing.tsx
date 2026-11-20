@@ -43,9 +43,11 @@ interface ShopListingProps {
   heading?: { name: LocaleText; blurb: LocaleText };
   /** 'search' is the /search page: the title echoes the query and an empty result suggests categories. */
   mode?: 'search';
+  /** The first page of the unfiltered list, known at build time (rendered in the static HTML). */
+  initial?: Loaded;
 }
 
-interface Loaded {
+export interface Loaded {
   page: CatalogPage;
   categories: Category[];
 }
@@ -81,7 +83,7 @@ export function ShopListingSkeleton() {
   );
 }
 
-export function ShopListing({ scope, heading, mode }: ShopListingProps) {
+export function ShopListing({ scope, heading, mode, initial }: ShopListingProps) {
   const t = useTranslations('shop');
   const search = useTranslations('search');
   const nav = useTranslations('nav');
@@ -102,7 +104,12 @@ export function ShopListing({ scope, heading, mode }: ShopListingProps) {
   const [, startTransition] = useTransition();
   const [view, setView] = useOptimistic(state);
   const requestKey = `shop:${scopeKey}:${serializeShopParams(state, scope)}`;
-  const result = useAsync(requestKey, () => loadShop(state, scope));
+  const isDefaultView = serializeShopParams(state, scope) === '';
+  const result = useAsync(
+    requestKey,
+    () => loadShop(state, scope),
+    isDefaultView ? initial : undefined,
+  );
 
   const loaded =
     result.status === 'success'
@@ -327,9 +334,9 @@ export function ShopListing({ scope, heading, mode }: ShopListingProps) {
                       refreshing ? 'opacity-50' : ''
                     }`}
                   >
-                    {loaded.page.items.map((product) => (
+                    {loaded.page.items.map((product, index) => (
                       <li key={product.id}>
-                        <ProductCard product={product} />
+                        <ProductCard product={product} priority={index < 2} />
                       </li>
                     ))}
                   </ul>

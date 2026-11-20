@@ -5,8 +5,9 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { firstPhotoColorId } from '@/data/images';
 import { catalogStatic } from '@/data/repository/catalog.static';
-import { ProductSkeleton, ProductView } from '@/features/product/ProductView';
+import { ProductContent, ProductView } from '@/features/product/ProductView';
 import { routing } from '@/i18n/routing';
+import { pageMetadata } from '@/lib/seo';
 
 export const dynamicParams = false;
 
@@ -26,26 +27,23 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const title = `${product.name[locale]} — ${brand('name')}`;
   const description = `${product.tagline[locale]}. ${product.description[locale]}`;
   const photoColor = firstPhotoColorId(slug);
-  const image = photoColor ? [`/images/products/${slug}/${photoColor}-1-960.webp`] : [];
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: `/${locale}/product/${slug}/`,
-      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/product/${slug}/`])),
-    },
-    openGraph: { title, description, type: 'website', locale, images: image },
-    twitter: { card: image.length > 0 ? 'summary_large_image' : 'summary', title, description },
-  };
+  const image = photoColor ? `/images/products/${slug}/${photoColor}-1-960.webp` : undefined;
+  return pageMetadata({ locale, path: `/product/${slug}/`, title, description, image });
 }
 
 export default async function ProductPage({ params }: { params: Params }) {
   const { locale, slug } = await params;
-  if (!hasLocale(routing.locales, locale) || !catalogStatic.getProduct(slug)) notFound();
+  const product = catalogStatic.getProduct(slug);
+  if (!hasLocale(routing.locales, locale) || !product) notFound();
   setRequestLocale(locale);
+  const category = catalogStatic.categories().find((c) => c.id === product.categoryId) ?? null;
   return (
-    <Suspense fallback={<ProductSkeleton />}>
-      <ProductView slug={slug} />
+    // The static HTML holds the real product (photo, name, price, sizes) in its default colour.
+    // `?color=` can only be read in the browser, so ProductView picks the colour after hydration.
+    <Suspense
+      fallback={<ProductContent product={product} category={category} colorId={undefined} />}
+    >
+      <ProductView slug={slug} initial={{ product, category }} />
     </Suspense>
   );
 }

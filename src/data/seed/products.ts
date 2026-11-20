@@ -401,7 +401,7 @@ const INPUTS: readonly ProductInput[] = [
     materials: MATERIALS.leather,
     price: 2650,
     compareAt: 3100,
-    colors: ['tan', 'brown'],
+    colors: ['tan', 'brown', 'black'],
     sizeRange: [40, 46],
     rating: 4.3,
     reviews: 112,

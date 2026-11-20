@@ -1,15 +1,19 @@
 'use client';
 
 import { Ruler } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useId, useState, type ReactNode } from 'react';
 import { Button } from '@/components/ui/Button';
 import { QuantityStepper } from '@/components/ui/QuantityStepper';
 import { colorHasStock, isProductSoldOut, stockLevel } from '@/data/stock';
 import { useCartStore } from '@/features/cart/cart.store';
+import { useEverTrue } from '@/lib/hooks/useEverTrue';
 import { useFormat } from '@/lib/hooks/useFormat';
-import { SizeGuideModal } from './SizeGuideModal';
 import type { Purchase } from './usePurchase';
+
+const loadGuide = () => import('./SizeGuideModal').then((m) => m.SizeGuideModal);
+const SizeGuideModal = dynamic(loadGuide, { ssr: false });
 
 interface PurchasePanelProps {
   purchase: Purchase;
@@ -43,6 +47,7 @@ export function PurchasePanel({ purchase, onAdded, registerCta }: PurchasePanelP
   const uid = useId();
   const openDrawer = useCartStore((s) => s.openDrawer);
   const [guideOpen, setGuideOpen] = useState(false);
+  const guideMounted = useEverTrue(guideOpen);
 
   const { product, color, sizes, size, sizeError } = purchase;
   const productSoldOut = isProductSoldOut(product);
@@ -114,6 +119,8 @@ export function PurchasePanel({ purchase, onAdded, registerCta }: PurchasePanelP
           </legend>
           <button
             type="button"
+            onPointerEnter={() => void loadGuide()}
+            onFocus={() => void loadGuide()}
             onClick={() => setGuideOpen(true)}
             className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium underline underline-offset-4 hover:text-accent-700"
           >
@@ -213,7 +220,9 @@ export function PurchasePanel({ purchase, onAdded, registerCta }: PurchasePanelP
         </Button>
       </div>
 
-      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
+      {guideMounted ? (
+        <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
+      ) : null}
     </div>
   );
 }

@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
   output: 'export',
   trailingSlash: true,
   reactStrictMode: true,
+  // One 404 for the whole static site: the app has two root layouts, so none can compose it.
+  experimental: { globalNotFound: true },
   ...(basePath ? { basePath } : {}),
   images: {
     // Images are pre-optimized to WebP by `npm run images:optimize`.

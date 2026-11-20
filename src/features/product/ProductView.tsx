@@ -15,6 +15,7 @@ import { Price } from '@/features/catalog/components/Price';
 import { Link } from '@/i18n/navigation';
 import { useAsync } from '@/lib/hooks/useAsync';
 import { useFormat } from '@/lib/hooks/useFormat';
+import { DeferUntilVisible } from '@/components/ui/DeferUntilVisible';
 import { Gallery } from './Gallery';
 import { ProductDetails } from './ProductDetails';
 import { WishlistButton } from '@/features/wishlist/WishlistButton';
@@ -58,7 +59,8 @@ export function ProductSkeleton() {
   );
 }
 
-function ProductLoaded({
+/** The product screen itself. Rendered into the static HTML with the default colour. */
+export function ProductContent({
   product,
   category,
   colorId,
@@ -127,8 +129,12 @@ function ProductLoaded({
       </div>
 
       <div className="mt-20 flex flex-col gap-20">
-        <ReviewsSection productId={product.id} />
-        <RelatedProducts productId={product.id} />
+        <DeferUntilVisible minHeight="28rem">
+          <ReviewsSection productId={product.id} />
+        </DeferUntilVisible>
+        <DeferUntilVisible minHeight="30rem">
+          <RelatedProducts productId={product.id} />
+        </DeferUntilVisible>
       </div>
 
       <StickyBuyBar purchase={purchase} target={cta} />
@@ -136,18 +142,24 @@ function ProductLoaded({
   );
 }
 
-export function ProductView({ slug }: { slug: string }) {
+export interface ProductInitialData {
+  product: Product | null;
+  category: Category | null;
+}
+
+export function ProductView({ slug, initial }: { slug: string; initial?: ProductInitialData }) {
   const states = useTranslations('states');
   const common = useTranslations('common');
   const t = useTranslations('product');
   const colorId = useSearchParams().get('color') ?? undefined;
-  const state = useAsync(`product-page:${slug}`, () => loadProductPage(slug));
+  const state = useAsync(`product-page:${slug}`, () => loadProductPage(slug), initial);
 
   if (state.status === 'loading') return <ProductSkeleton />;
   if (state.status === 'error') {
     return (
       <div className="container-page py-12">
         <ErrorState
+          as="h1"
           title={states('errorTitle')}
           body={states('errorBody')}
           retryLabel={common('retry')}
@@ -161,6 +173,7 @@ export function ProductView({ slug }: { slug: string }) {
     return (
       <div className="container-page py-12">
         <EmptyState
+          as="h1"
           title={t('notFoundTitle')}
           body={t('notFoundBody')}
           action={
@@ -172,5 +185,7 @@ export function ProductView({ slug }: { slug: string }) {
       </div>
     );
   }
-  return <ProductLoaded key={product.id} product={product} category={category} colorId={colorId} />;
+  return (
+    <ProductContent key={product.id} product={product} category={category} colorId={colorId} />
+  );
 }

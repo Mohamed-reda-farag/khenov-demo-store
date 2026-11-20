@@ -19,11 +19,14 @@ import { useWishlistStore } from './wishlist.store';
 
 export function WishlistSkeleton() {
   return (
-    <div role="status" aria-busy className="container-page py-8">
+    <div role="status" aria-busy className="container-page min-h-[60svh] py-8">
       <Skeleton className="mb-8 h-9 w-48" />
       <div aria-hidden className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
-          <ProductCardSkeleton key={i} />
+          // Two cards on a phone: a skeleton taller than the empty state would shift the footer.
+          <div key={i} className={i >= 2 ? 'max-md:hidden' : undefined}>
+            <ProductCardSkeleton />
+          </div>
         ))}
       </div>
     </div>
@@ -114,8 +117,9 @@ export function WishlistView() {
 
   if (entries.length === 0) {
     return (
-      <div className="container-page py-12">
+      <div className="container-page min-h-[60svh] py-12">
         <EmptyState
+          as="h1"
           icon={<Heart aria-hidden className="size-7" />}
           title={t('emptyTitle')}
           body={t('emptyBody')}
@@ -131,8 +135,9 @@ export function WishlistView() {
 
   if (result.status === 'error') {
     return (
-      <div className="container-page py-12">
+      <div className="container-page min-h-[60svh] py-12">
         <ErrorState
+          as="h1"
           title={states('errorTitle')}
           body={states('errorBody')}
           retryLabel={common('retry')}

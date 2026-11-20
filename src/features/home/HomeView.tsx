@@ -5,12 +5,12 @@ import { buttonClasses } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/StateBlocks';
 import { catalogRepository } from '@/data/repository';
-import type { Banner } from '@/data/types';
+import type { Banner, Product } from '@/data/types';
 import { Link } from '@/i18n/navigation';
 import { useAsync } from '@/lib/hooks/useAsync';
 import { useFormat } from '@/lib/hooks/useFormat';
 import { BannerImage } from '@/features/catalog/components/BannerImage';
-import { CategoryTiles } from './CategoryTiles';
+import { CategoryTiles, type CategoryTile } from './CategoryTiles';
 import { ProductRail } from './ProductRail';
 import { PromoStrip, PromoTiles } from './Promos';
 import { ValuesStrip } from './ValuesStrip';
@@ -70,11 +70,19 @@ function HeroSkeleton() {
   );
 }
 
-export function HomeView() {
+/** What the home page already knows when it is built (it is rendered into the static HTML). */
+export interface HomeInitialData {
+  banners: Banner[];
+  tiles: CategoryTile[];
+  featured: Product[];
+  newArrivals: Product[];
+}
+
+export function HomeView({ initial }: { initial: HomeInitialData }) {
   const t = useTranslations('home');
   const states = useTranslations('states');
   const common = useTranslations('common');
-  const banners = useAsync('home:banners', () => catalogRepository.listBanners());
+  const banners = useAsync('home:banners', () => catalogRepository.listBanners(), initial.banners);
   const list = banners.status === 'success' ? banners.data : [];
   const hero = list.find((b) => b.kind === 'hero');
   const strip = list.find((b) => b.kind === 'strip');
@@ -87,6 +95,7 @@ export function HomeView() {
         <div className="bg-canvas">
           <div className="container-page">
             <ErrorState
+              as="h1"
               title={states('errorTitle')}
               body={states('errorBody')}
               retryLabel={common('retry')}
@@ -98,7 +107,7 @@ export function HomeView() {
       {hero ? <Hero banner={hero} /> : null}
 
       <div className="container-page flex flex-col gap-24 pt-20">
-        <CategoryTiles />
+        <CategoryTiles initial={initial.tiles} />
         <ProductRail
           id="featured"
           title={t('featuredTitle')}
@@ -106,6 +115,7 @@ export function HomeView() {
           href="/shop"
           load={() => catalogRepository.getFeatured(8)}
           loadKey="home:featured"
+          initial={initial.featured}
         />
       </div>
 
@@ -119,6 +129,7 @@ export function HomeView() {
           href="/shop?new=1&sort=newest"
           load={() => catalogRepository.getNewArrivals(4)}
           loadKey="home:new"
+          initial={initial.newArrivals}
         />
         {tiles.length > 0 ? <PromoTiles banners={tiles} /> : null}
         <ValuesStrip />

@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId, useRef, type ReactNode } from 'react';
 import { IconButton } from './IconButton';
-import { useOverlayBehavior } from './overlay';
+import { useEntered, useOverlayBehavior } from './overlay';
 
 interface DrawerProps {
   open: boolean;
@@ -20,6 +20,7 @@ export function Drawer({ open, onClose, title, side = 'end', children, footer }:
   const t = useTranslations('common');
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const entered = useEntered();
   useOverlayBehavior(open, panelRef, onClose);
 
   return (
@@ -30,7 +31,7 @@ export function Drawer({ open, onClose, title, side = 'end', children, footer }:
     >
       <div
         className="overlay-scrim absolute inset-0 bg-ink-900/50"
-        data-open={open}
+        data-open={open && entered}
         onClick={onClose}
         aria-hidden
       />
@@ -40,7 +41,7 @@ export function Drawer({ open, onClose, title, side = 'end', children, footer }:
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        data-open={open}
+        data-open={open && entered}
         data-side={side}
         className={`drawer-panel absolute inset-y-0 flex w-full max-w-[26rem] flex-col bg-paper outline-none ${
           side === 'end' ? 'end-0' : 'start-0'

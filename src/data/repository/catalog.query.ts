@@ -178,3 +178,28 @@ export function relatedTo(all: readonly Product[], source: Product, limit: numbe
     .sort((a, b) => score(b) - score(a))
     .slice(0, limit);
 }
+
+/** Products flagged as featured, in catalogue order. */
+export function featuredFrom(all: readonly Product[], limit: number): Product[] {
+  return all.filter((p) => p.isFeatured).slice(0, limit);
+}
+
+/** Newest products first. */
+export function newArrivalsFrom(all: readonly Product[], limit: number): Product[] {
+  return all
+    .filter((p) => p.isNew)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, limit);
+}
+
+/** Each category with the number of products in it (the home page tiles). */
+export function categoryTilesFrom(
+  all: readonly Product[],
+  categories: readonly Category[],
+): { category: Category; count: number }[] {
+  const page = queryCatalog(all, categories, { pageSize: 1 });
+  return categories.map((category) => ({
+    category,
+    count: page.facets.categories.find((c) => c.id === category.id)?.count ?? 0,
+  }));
+}

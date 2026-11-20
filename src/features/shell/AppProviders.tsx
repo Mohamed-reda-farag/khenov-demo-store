@@ -8,12 +8,13 @@ import { useOverlayStore } from '@/components/ui/overlay';
 import { toast } from '@/components/ui/toast';
 import { preferencesRepository } from '@/data/repository';
 import { LOCALES } from '@/data/types';
-import { CartDrawer } from '@/features/cart/CartDrawer';
 import { useCartStore } from '@/features/cart/cart.store';
-import { ResetDemoDialog } from '@/features/demo/ResetDemo';
+import { useDemoUiStore } from '@/features/demo/demo-ui.store';
 import { useWishlistStore } from '@/features/wishlist/wishlist.store';
+import { useEverTrue } from '@/lib/hooks/useEverTrue';
 import { onDemoReset } from '@/lib/demo';
-import { MobileNavDrawer } from './MobileNavDrawer';
+import { CartDrawer, MobileNavDrawer, ResetDemoDialog } from './lazy-overlays';
+import { useMobileNavStore } from './nav';
 
 /**
  * Client root: hydrates stores, remembers the language, and renders everything that must live
@@ -24,6 +25,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
   const t = useTranslations('cart');
   const tWishlist = useTranslations('wishlist');
   const overlayCount = useOverlayStore((s) => s.count);
+  const cartMounted = useEverTrue(useCartStore((s) => s.drawerOpen));
+  const navMounted = useEverTrue(useMobileNavStore((s) => s.open));
+  const resetMounted = useEverTrue(useDemoUiStore((s) => s.resetOpen));
   const hydrate = useCartStore((s) => s.hydrate);
   const closeDrawer = useCartStore((s) => s.closeDrawer);
   const syncErrors = useCartStore((s) => s.syncErrors);
@@ -62,9 +66,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
       <div id="app-shell" inert={overlayCount > 0}>
         {children}
       </div>
-      <MobileNavDrawer />
-      <CartDrawer />
-      <ResetDemoDialog />
+      {navMounted ? <MobileNavDrawer /> : null}
+      {cartMounted ? <CartDrawer /> : null}
+      {resetMounted ? <ResetDemoDialog /> : null}
       <Toaster />
     </>
   );

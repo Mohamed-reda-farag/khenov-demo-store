@@ -7,7 +7,9 @@ import { AnnouncementBar } from '@/features/shell/AnnouncementBar';
 import { AppProviders } from '@/features/shell/AppProviders';
 import { Footer } from '@/features/shell/Footer';
 import { Header } from '@/features/shell/Header';
+import { RouteFocus } from '@/features/shell/RouteFocus';
 import { DIRECTION, routing } from '@/i18n/routing';
+import { SITE_URL, withBase } from '@/lib/seo';
 import '../globals.css';
 
 export const dynamicParams = false;
@@ -25,13 +27,10 @@ export async function generateMetadata({
   if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: 'meta' });
   return {
-    metadataBase: new URL(process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000'),
+    metadataBase: new URL(SITE_URL),
     title: t('title'),
     description: t('description'),
-    icons: { icon: '/favicon.svg' },
-    alternates: {
-      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/`])),
-    },
+    icons: { icon: withBase('/favicon.svg') },
   };
 }
 
@@ -66,7 +65,10 @@ export default async function LocaleLayout({
           <AppProviders>
             <AnnouncementBar />
             <Header />
-            <main id="main">{children}</main>
+            <main id="main" tabIndex={-1} className="outline-none">
+              {children}
+            </main>
+            <RouteFocus />
             <Footer />
           </AppProviders>
         </NextIntlClientProvider>

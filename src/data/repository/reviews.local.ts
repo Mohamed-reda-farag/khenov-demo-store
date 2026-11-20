@@ -1,11 +1,11 @@
 import { simulateNetwork } from '@/lib/demo/network';
 import { ratingDistribution } from '../rating';
-import { PRODUCTS, REVIEWS } from '../seed';
 import type { ReviewsRepository } from './reviews';
 
 export const localReviewsRepository: ReviewsRepository = {
   async forProduct(productId) {
     await simulateNetwork();
+    const { PRODUCTS, REVIEWS } = await import('../seed');
     const product = PRODUCTS.find((p) => p.id === productId);
     if (!product) throw new Error(`Unknown product ${productId}`);
     return {

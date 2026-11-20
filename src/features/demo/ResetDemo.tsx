@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { toast } from '@/components/ui/toast';
 import { resetDemo } from '@/lib/demo';
+import { preloadResetDialog } from '@/features/shell/lazy-overlays';
 import { useDemoUiStore } from './demo-ui.store';
 
 /** Footer / settings trigger. Opens the confirm dialog mounted once in the shell. */
@@ -15,6 +16,8 @@ export function ResetDemoButton({ className = '' }: { className?: string }) {
     <button
       type="button"
       onClick={openReset}
+      onPointerEnter={preloadResetDialog}
+      onFocus={preloadResetDialog}
       className={`inline-flex min-h-11 items-center gap-2 text-sm underline-offset-4 hover:underline ${className}`}
     >
       <RotateCcw aria-hidden className="size-4" />

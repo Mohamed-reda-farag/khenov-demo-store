@@ -75,7 +75,7 @@ async function loadDefaults() {
 
 export function CheckoutSkeleton() {
   return (
-    <div role="status" aria-busy className="container-page py-8">
+    <div role="status" aria-busy className="container-page min-h-[60svh] py-8">
       <Skeleton className="mb-8 h-9 w-56" />
       <div aria-hidden className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="flex flex-col gap-4">
@@ -83,7 +83,7 @@ export function CheckoutSkeleton() {
             <Skeleton key={i} className="h-14 w-full" />
           ))}
         </div>
-        <Skeleton className="h-80 w-full rounded-lg" />
+        <Skeleton className="hidden h-80 w-full rounded-lg lg:block" />
       </div>
     </div>
   );
@@ -271,8 +271,9 @@ export function CheckoutView() {
 
   if (lines.length === 0) {
     return (
-      <div className="container-page py-12">
+      <div className="container-page min-h-[60svh] py-12">
         <EmptyState
+          as="h1"
           icon={<ShoppingBag aria-hidden className="size-7" />}
           title={cart('emptyTitle')}
           body={t('emptyBody')}

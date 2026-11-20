@@ -11,6 +11,8 @@ import { Link } from '@/i18n/navigation';
 import { useWishlistStore } from '@/features/wishlist/wishlist.store';
 import { useFormat } from '@/lib/hooks/useFormat';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { preloadCartDrawer, preloadMobileNav } from './lazy-overlays';
+import { CountBadge } from './CountBadge';
 import { MegaNav } from './MegaNav';
 import { useMobileNavStore } from './nav';
 
@@ -18,22 +20,18 @@ function CartButton() {
   const t = useTranslations('header');
   const format = useFormat();
   const count = useCartStore((s) => itemCount(s.lines));
+  const cartReady = useCartStore((s) => s.hydrated);
   const open = useCartStore((s) => s.openDrawer);
   return (
     <IconButton
       label={t('cartLabel', { count, countText: format.number(count) })}
       onClick={open}
+      onPointerEnter={preloadCartDrawer}
+      onFocus={preloadCartDrawer}
       aria-haspopup="dialog"
     >
       <ShoppingBag aria-hidden className="size-5" />
-      {count > 0 ? (
-        <span
-          aria-hidden
-          className="absolute end-0.5 top-0.5 grid min-w-5 place-items-center rounded-full bg-accent-600 px-1 text-[0.6875rem] leading-5 font-semibold text-white"
-        >
-          {format.number(count)}
-        </span>
-      ) : null}
+      <CountBadge count={count} text={format.number(count)} ready={cartReady} />
     </IconButton>
   );
 }
@@ -42,6 +40,7 @@ function WishlistLink() {
   const t = useTranslations('header');
   const format = useFormat();
   const count = useWishlistStore((s) => s.entries.length);
+  const wishReady = useWishlistStore((s) => s.hydrated);
   return (
     <Link
       href="/wishlist"
@@ -49,14 +48,7 @@ function WishlistLink() {
       className={`${iconButtonClasses} relative max-sm:hidden`}
     >
       <Heart aria-hidden className="size-5" />
-      {count > 0 ? (
-        <span
-          aria-hidden
-          className="absolute end-0.5 top-0.5 grid min-w-5 place-items-center rounded-full bg-accent-600 px-1 text-[0.6875rem] leading-5 font-semibold text-white"
-        >
-          {format.number(count)}
-        </span>
-      ) : null}
+      <CountBadge count={count} text={format.number(count)} ready={wishReady} />
     </Link>
   );
 }
@@ -70,7 +62,13 @@ export function Header() {
     <header className="sticky top-0 z-header border-b border-sand-200 bg-paper">
       <div className="container-page relative flex h-16 items-center justify-between gap-2 lg:h-20">
         <div className="flex items-center gap-1">
-          <IconButton label={nav('menu')} className="lg:hidden" onClick={() => setMobileOpen(true)}>
+          <IconButton
+            label={nav('menu')}
+            className="lg:hidden"
+            onClick={() => setMobileOpen(true)}
+            onPointerDown={preloadMobileNav}
+            onFocus={preloadMobileNav}
+          >
             <Menu aria-hidden className="size-5" />
           </IconButton>
           <Wordmark />

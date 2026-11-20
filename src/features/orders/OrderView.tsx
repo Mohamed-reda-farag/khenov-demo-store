@@ -30,7 +30,7 @@ import { OrderTimeline } from './OrderTimeline';
 
 export function OrderSkeleton() {
   return (
-    <div role="status" aria-busy className="container-page max-w-4xl py-10">
+    <div role="status" aria-busy className="container-page min-h-[60svh] max-w-4xl py-10">
       <Skeleton className="mb-3 h-9 w-72" />
       <Skeleton className="mb-10 h-5 w-48" />
       <div aria-hidden className="flex flex-col gap-6">
@@ -346,8 +346,9 @@ export function OrderView() {
   if (state.status === 'loading') return <OrderSkeleton />;
   if (state.status === 'error') {
     return (
-      <div className="container-page py-12">
+      <div className="container-page min-h-[60svh] py-12">
         <ErrorState
+          as="h1"
           title={states('errorTitle')}
           body={states('errorBody')}
           retryLabel={common('retry')}
@@ -358,8 +359,9 @@ export function OrderView() {
   }
   if (!state.data) {
     return (
-      <div className="container-page py-12">
+      <div className="container-page min-h-[60svh] py-12">
         <EmptyState
+          as="h1"
           icon={<PackageSearch aria-hidden className="size-7" />}
           title={t('notFoundTitle')}
           body={t('notFoundBody')}

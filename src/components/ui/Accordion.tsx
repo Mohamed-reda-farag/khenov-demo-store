@@ -13,10 +13,14 @@ export interface AccordionItem {
 export function Accordion({
   items,
   defaultOpen = [],
+  headingLevel = 3,
 }: {
   items: readonly AccordionItem[];
   defaultOpen?: readonly string[];
+  /** Level of each item's heading, so it fits under the section's own heading. */
+  headingLevel?: 2 | 3;
 }) {
+  const Heading = headingLevel === 2 ? 'h2' : 'h3';
   const base = useId();
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set(defaultOpen));
 
@@ -36,7 +40,7 @@ export function Accordion({
         const panelId = `${base}-${item.id}-panel`;
         return (
           <div key={item.id}>
-            <h3>
+            <Heading>
               <button
                 type="button"
                 id={buttonId}
@@ -53,7 +57,7 @@ export function Accordion({
                   }`}
                 />
               </button>
-            </h3>
+            </Heading>
             <div
               id={panelId}
               role="region"

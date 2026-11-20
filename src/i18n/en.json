@@ -17,11 +17,12 @@
   },
   "language": {
     "switchTo": "عربي",
-    "switchLabel": "Switch language to Arabic"
+    "switchLabel": "عربي — switch language to Arabic"
   },
   "announcement": {
     "demoBadge": "Demo by KHENOV",
-    "shipping": "Free shipping on orders over EGP 2,000"
+    "shipping": "Free shipping on orders over {amount}",
+    "label": "Store notices"
   },
   "nav": {
     "label": "Main navigation",
@@ -103,7 +104,9 @@
     "helpSizeGuide": "Size guide",
     "demoTitle": "Demo",
     "disclaimer": "All products, prices and reviews are fictional. There are no real payments and no real accounts.",
-    "rights": "A demo by KHENOV"
+    "rights": "A demo by KHENOV",
+    "helpContact": "Contact & FAQ",
+    "helpPrivacy": "Privacy & demo notice"
   },
   "demo": {
     "reset": "Reset demo",
@@ -112,11 +115,6 @@
     "resetConfirm": "Yes, reset",
     "resetCancel": "Cancel",
     "resetDone": "Demo has been reset"
-  },
-  "comingSoon": {
-    "title": "This page is being built",
-    "body": "It will be added in an upcoming milestone of the demo.",
-    "cta": "Back to home"
   },
   "states": {
     "errorTitle": "Something went wrong",
@@ -503,6 +501,119 @@
     "resultsTitle": "Results for “{q}”",
     "noResultsTitle": "Nothing found for “{q}”",
     "noResultsBody": "Check the spelling, try a shorter word, or browse a category.",
-    "browseAll": "Browse all styles"
+    "browseAll": "Browse all styles",
+    "removeRecent": "Remove “{term}” from recent searches"
+  },
+  "help": {
+    "navLabel": "Help pages",
+    "title": "Help",
+    "demoBanner": "ATHAR is a fictional store built as a demo by KHENOV. The policies on these pages show how a real store would explain itself; nothing here is a real commitment.",
+    "pages": {
+      "shipping": "Shipping & delivery",
+      "returns": "Exchanges & returns",
+      "sizeGuide": "Size guide",
+      "contact": "Contact & FAQ",
+      "privacy": "Privacy & demo notice"
+    },
+    "shipping": {
+      "metaDescription": "Delivery options, prices and timing at ATHAR. A fictional store, demo by KHENOV.",
+      "intro": "Every order is delivered by courier. Choose standard or express at checkout.",
+      "ratesTitle": "Delivery options",
+      "colMethod": "Method",
+      "colPrice": "Price",
+      "colTime": "Delivery time",
+      "standard": "Standard shipping",
+      "express": "Express shipping",
+      "days": "{from}–{to} working days",
+      "free": "Free",
+      "freeFrom": "Standard shipping is free on orders of {amount} or more, and with the FREESHIP promo code. Express is always charged.",
+      "workingTitle": "Working days",
+      "working": "Couriers work Saturday to Thursday. Fridays and public holidays are not counted in the delivery time.",
+      "trackTitle": "Tracking your order",
+      "track": "Open the order page to see its status: placed, processing, shipped and delivered. In this demo an order moves through the stages by itself within a few minutes so you can watch the timeline; nothing is really shipped.",
+      "codTitle": "Cash on delivery",
+      "cod": "You can pay the courier in cash when the order arrives. Card payment in this demo is simulated and never charges anything.",
+      "cta": "Start shopping"
+    },
+    "returns": {
+      "metaDescription": "Cancellations, exchanges and returns at ATHAR. A fictional store, demo by KHENOV.",
+      "intro": "If something is not right, here is how a real store would put it.",
+      "cancelTitle": "Cancelling an order",
+      "cancel": "You can cancel from the order page while the order is still being prepared, before it ships. If you cancel by mistake you can undo it for a short time.",
+      "exchangeTitle": "Exchanges and returns",
+      "exchange": "You would have 14 days after delivery to ask for an exchange or a return, as long as the shoes are unworn, undamaged and in their original box.",
+      "refundTitle": "Refunds",
+      "refund": "A refund would go back to the way you paid, within 7 working days after we receive the shoes. Cash-on-delivery orders would be refunded by bank transfer.",
+      "demoTitle": "In this demo",
+      "demo": "The demo does not process return requests. Cancelling an order is the only action that works, and it only changes data on this device.",
+      "cta": "Contact & FAQ"
+    },
+    "sizeGuide": {
+      "metaDescription": "Find your EU shoe size from your foot length. ATHAR size guide, a fictional store by KHENOV.",
+      "cta": "Shop now"
+    },
+    "contact": {
+      "metaDescription": "Answers to common questions and a demo contact form. ATHAR is a fictional store by KHENOV.",
+      "intro": "Find a quick answer first. The form below is a demonstration: nothing you type is sent.",
+      "faqTitle": "Frequently asked questions",
+      "q1": "How long does delivery take?",
+      "a1": "Standard shipping takes 3–5 working days and express 1–2. See the shipping page for prices.",
+      "q2": "Can I change or cancel my order?",
+      "a2": "Yes, from the order page while it is still being prepared.",
+      "q3": "Which size should I choose?",
+      "a3": "Measure your foot and compare it with the size guide. If you are between two sizes, take the larger one.",
+      "q4": "Which promo codes work?",
+      "a4": "Try ATHAR10, WELCOME150 or FREESHIP. SUMMER25 has expired, so you can see how an expired code behaves.",
+      "q5": "Can I pay by card?",
+      "a5": "Card payment is simulated. Use 4242 4242 4242 4242 to see an approved payment and 4000 0000 0000 0002 to see a declined one. Real card numbers are never needed.",
+      "q6": "Are the products real?",
+      "a6": "No. ATHAR, its products, prices and reviews are fictional and made for this demo.",
+      "formTitle": "Send us a message",
+      "demoNotice": "Demo only: this form does not send anything and nobody will reply.",
+      "name": "Your name",
+      "email": "Email address",
+      "topic": "Topic",
+      "message": "Message",
+      "topicOrder": "My order",
+      "topicSize": "Sizing",
+      "topicOther": "Something else",
+      "required": "This field is required.",
+      "invalidEmail": "Please enter a valid email address.",
+      "submit": "Send message",
+      "errorSummary": "Please check these fields",
+      "successTitle": "Thanks, this is how it would look",
+      "successBody": "Nothing was sent and nothing was saved. In a real store this is where you would get a reply.",
+      "again": "Write another message"
+    },
+    "privacy": {
+      "metaDescription": "What this demo stores on your device and what it does not collect. ATHAR is a fictional store by KHENOV.",
+      "intro": "This page explains the demo honestly, in plain words.",
+      "whatTitle": "What this is",
+      "what": "ATHAR is a fictional footwear store made by KHENOV to show how a modern bilingual shop can feel. There is no company, no stock and no one behind a shipment.",
+      "storedTitle": "What is saved on your device",
+      "stored": "Your cart, wishlist, orders, saved addresses, recent searches and newsletter sign-up are kept in this browser's local storage so the demo can remember them. Your language comes from the address you are on.",
+      "notTitle": "What is not collected",
+      "not": "There is no server, no account, no analytics, no advertising and no tracking. Nothing you type is sent anywhere, and no real payment is ever taken. Fonts and images are served with the site itself.",
+      "resetTitle": "Clearing it",
+      "reset": "Use “Reset demo” in the footer to remove everything the demo saved and return the store to its starting state. Clearing site data in your browser does the same.",
+      "toolsTitle": "Demo tools",
+      "tools": "Add ?demo=fast to a page address for instant responses, ?demo=error to see how every screen behaves when loading fails, or ?demo=off to turn the helpers off.",
+      "madeBy": "Made by KHENOV."
+    }
+  },
+  "notFound": {
+    "code": "Error 404",
+    "title": "We couldn't find that page",
+    "body": "The link may be old, or the product, order or category no longer exists in this demo. Here are some places to go next.",
+    "home": "Back to home",
+    "shop": "Shop all",
+    "search": "Search",
+    "help": "Help & FAQ"
+  },
+  "errorPage": {
+    "title": "Something went wrong on this page",
+    "body": "The page hit an unexpected problem. Nothing was lost: your cart and wishlist are safe on this device.",
+    "retry": "Try again",
+    "home": "Back to home"
   }
 }

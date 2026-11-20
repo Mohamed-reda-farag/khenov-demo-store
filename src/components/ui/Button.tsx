@@ -44,14 +44,25 @@ export function Button({
   className = '',
   children,
   type = 'button',
+  onClick,
   ...rest
 }: ButtonProps) {
   return (
     <button
       type={type}
       className={`${buttonClasses({ variant, size, fullWidth })} ${className}`}
-      disabled={disabled || loading}
+      disabled={disabled}
+      // Busy, not disabled: a disabled button drops keyboard focus, which would strand the user
+      // mid-form. Clicks and form submits are ignored by the guard below while loading.
+      aria-disabled={loading || undefined}
       aria-busy={loading || undefined}
+      onClick={(event) => {
+        if (loading) {
+          event.preventDefault();
+          return;
+        }
+        onClick?.(event);
+      }}
       {...rest}
     >
       {loading ? (

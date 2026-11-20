@@ -17,7 +17,7 @@ import { useCartPricing } from './useCartPricing';
 
 export function CartSkeleton() {
   return (
-    <div role="status" aria-busy className="container-page py-8">
+    <div role="status" aria-busy className="container-page min-h-[60svh] py-8">
       <Skeleton className="mb-8 h-9 w-48" />
       <div aria-hidden className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="flex flex-col gap-6">
@@ -32,7 +32,7 @@ export function CartSkeleton() {
             </div>
           ))}
         </div>
-        <Skeleton className="h-96 w-full rounded-lg" />
+        <Skeleton className="hidden h-96 w-full rounded-lg lg:block" />
       </div>
     </div>
   );
@@ -50,8 +50,9 @@ export function CartView() {
 
   if (lines.length === 0) {
     return (
-      <div className="container-page py-12">
+      <div className="container-page min-h-[60svh] py-12">
         <EmptyState
+          as="h1"
           icon={<ShoppingBag aria-hidden className="size-7" />}
           title={t('emptyTitle')}
           body={t('emptyBody')}

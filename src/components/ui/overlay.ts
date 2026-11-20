@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import { create } from 'zustand';
 
 /** How many modal overlays are open. The app shell goes `inert` while this is > 0. */
@@ -104,4 +104,17 @@ export function useOverlayBehavior(
       });
     };
   }, [open, panelRef]);
+}
+
+/**
+ * False on the first frame after mount, true afterwards. An overlay that is mounted already open
+ * (its code was loaded on demand) uses it to still play its enter transition.
+ */
+export function useEntered(): boolean {
+  const [entered, setEntered] = useState(false);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  return entered;
 }

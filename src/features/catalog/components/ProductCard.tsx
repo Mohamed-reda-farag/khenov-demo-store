@@ -8,7 +8,8 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { galleryColorId, photoCount } from '@/data/images';
 import { colorHasStock, defaultColor, findColor, isProductSoldOut } from '@/data/stock';
 import type { Product } from '@/data/types';
-import { QuickView } from '@/features/product/QuickView';
+import { useEverTrue } from '@/lib/hooks/useEverTrue';
+import { QuickView, preloadQuickView } from './quick-view-lazy';
 import { WishlistButton } from '@/features/wishlist/WishlistButton';
 import { Link } from '@/i18n/navigation';
 import { useFormat } from '@/lib/hooks/useFormat';
@@ -25,17 +26,29 @@ interface ProductCardProps {
   hideWishlist?: boolean;
   /** Extra actions under the card, given the colour currently shown. */
   footer?: (colorId: string) => ReactNode;
+  /** The photo is likely the first thing seen (the first cards of a page): load it eagerly. */
+  priority?: boolean;
 }
 
-export function ProductCard({ product, initialColorId, hideWishlist, footer }: ProductCardProps) {
+export function ProductCard({
+  product,
+  initialColorId,
+  hideWishlist,
+  footer,
+  priority = false,
+}: ProductCardProps) {
   const format = useFormat();
   const t = useTranslations('product');
   const [quickOpen, setQuickOpen] = useState(false);
+  const quickMounted = useEverTrue(quickOpen);
   const name = format.text(product.name);
   const [selectedId, setSelectedId] = useState(
     () => findColor(product, initialColorId ?? '')?.id ?? defaultColor(product)?.id ?? '',
   );
   const [hoverId, setHoverId] = useState<string | null>(null);
+  // The hover photo is only requested once the card is pointed at or focused, not for every card.
+  const [wantsSecond, setWantsSecond] = useState(false);
+  const [secondReady, setSecondReady] = useState(false);
   const color = findColor(product, hoverId ?? selectedId) ?? product.colors[0];
   const colorHex = color?.hex ?? '#8f8e89';
   const photoColorId = color ? galleryColorId(product, color.id) : undefined;
@@ -44,7 +57,14 @@ export function ProductCard({ product, initialColorId, hideWishlist, footer }: P
   const hasSecond = photoColorId !== undefined && photoCount(product.slug, photoColorId) > 1;
 
   return (
-    <article className="group relative flex flex-col gap-3">
+    <article
+      className="group relative flex flex-col gap-3"
+      onPointerEnter={() => setWantsSecond(true)}
+      onFocus={() => {
+        setWantsSecond(true);
+        preloadQuickView();
+      }}
+    >
       <div className="relative aspect-[4/5] overflow-hidden rounded-md bg-canvas">
         <ProductImage
           fill
@@ -54,10 +74,15 @@ export function ProductCard({ product, initialColorId, hideWishlist, footer }: P
           colorHex={colorHex}
           colorId={photoColorId}
           sizes={IMAGE_SIZES}
+          priority={priority}
           zoom={!hasSecond}
         />
-        {hasSecond ? (
-          <div className="absolute inset-0 opacity-0 transition-opacity dur-slow ease-brand group-hover:opacity-100">
+        {hasSecond && wantsSecond ? (
+          <div
+            className={`absolute inset-0 opacity-0 transition-opacity dur-slow ease-brand ${
+              secondReady ? 'group-hover:opacity-100' : ''
+            }`}
+          >
             <ProductImage
               fill
               slug={product.slug}
@@ -67,6 +92,7 @@ export function ProductCard({ product, initialColorId, hideWishlist, footer }: P
               colorId={photoColorId}
               index={1}
               sizes={IMAGE_SIZES}
+              onLoaded={() => setSecondReady(true)}
             />
           </div>
         ) : null}
@@ -162,12 +188,14 @@ export function ProductCard({ product, initialColorId, hideWishlist, footer }: P
 
       {footer ? <div className="relative z-10">{footer(color?.id ?? selectedId)}</div> : null}
 
-      <QuickView
-        product={product}
-        colorId={color?.id}
-        open={quickOpen}
-        onClose={() => setQuickOpen(false)}
-      />
+      {quickMounted ? (
+        <QuickView
+          product={product}
+          colorId={color?.id}
+          open={quickOpen}
+          onClose={() => setQuickOpen(false)}
+        />
+      ) : null}
     </article>
   );
 }

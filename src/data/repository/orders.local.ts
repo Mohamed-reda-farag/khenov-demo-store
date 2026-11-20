@@ -3,7 +3,6 @@ import { registerSeeder } from '@/lib/demo/seed';
 import { storage } from '@/lib/demo/storage';
 import { cancelOrder, undoCancelOrder } from '../rules/order-actions';
 import { OrderError, buildOrder } from '../rules/place-order';
-import { PRODUCTS } from '../seed';
 import type { Order } from '../types';
 import type { OrdersRepository } from './orders';
 
@@ -48,6 +47,7 @@ export const localOrdersRepository: OrdersRepository = {
   async place(input) {
     // Pretend to talk to a payment processor; ?demo=error fails here, before anything is stored.
     await simulateNetwork(900, 1800);
+    const { PRODUCTS } = await import('../seed');
     const sequence = storage.get<number>(SEQUENCE_KEY, 0);
     const order = buildOrder(input, PRODUCTS, new Date(), sequence);
     storage.set(ORDERS_KEY, [order, ...read()]);

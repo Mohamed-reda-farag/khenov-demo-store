@@ -5,13 +5,19 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/StateBlocks';
 import { firstPhotoColorId } from '@/data/images';
 import { catalogRepository } from '@/data/repository';
+import type { Category } from '@/data/types';
 import { ArtTile, ProductImage } from '@/features/catalog/components/ProductImage';
 import { artFor, type ArtTone } from '@/features/catalog/components/ShoeArt';
 import { Link } from '@/i18n/navigation';
 import { useAsync } from '@/lib/hooks/useAsync';
 import { useFormat } from '@/lib/hooks/useFormat';
 
-async function loadTiles() {
+export interface CategoryTile {
+  category: Category;
+  count: number;
+}
+
+async function loadTiles(): Promise<CategoryTile[]> {
   const [categories, page] = await Promise.all([
     catalogRepository.listCategories(),
     catalogRepository.list({ pageSize: 1 }),
@@ -31,12 +37,12 @@ const SHOE: Record<ArtTone, string> = {
   ink: '#f1ece2',
 };
 
-export function CategoryTiles() {
+export function CategoryTiles({ initial }: { initial?: CategoryTile[] }) {
   const t = useTranslations('home');
   const states = useTranslations('states');
   const common = useTranslations('common');
   const format = useFormat();
-  const state = useAsync('home:categories', loadTiles);
+  const state = useAsync('home:categories', loadTiles, initial);
 
   return (
     <section aria-labelledby="categories-title">

@@ -35,7 +35,6 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-accent-600);
   outline-offset: 3px;
-  border-radius: var(--radius-xs);
 }
 
 ::selection {
@@ -43,15 +42,14 @@ body {
   color: var(--color-ink-900);
 }
 
-img,
-svg {
-  display: block;
-  max-width: 100%;
-}
-
-button {
-  font: inherit;
-  color: inherit;
+/* In the base layer so utilities (`hidden`, `text-white`, …) can still override them.
+   Tailwind's preflight already makes buttons inherit font and colour. */
+@layer base {
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
 }
 
 /* Page container: generous gutters, centered, logical padding. */
@@ -185,15 +183,15 @@ button {
   }
 }
 
-/* Route change: a short fade-and-rise. */
+/* Route change: a short fade. Opacity only, and never from fully transparent: a transform on this
+   wrapper would trap position:fixed children (the sticky buy bar) until the animation ended and
+   then make them jump, and a fully transparent start would delay Largest Contentful Paint. */
 .page-enter {
-  /* `backwards` only: a lingering transform would trap position:fixed descendants. */
   animation: page-in var(--dur-slow) var(--ease-out) backwards;
 }
 @keyframes page-in {
   from {
-    opacity: 0;
-    transform: translateY(8px);
+    opacity: 0.55;
   }
 }
 
@@ -216,5 +214,20 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Headings that receive focus after a route change are a landing point, not a control. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+/* Micro-feedback: a quick grow-and-settle on the count badge and the wishlist heart. */
+.pop {
+  animation: pop var(--dur-slow) var(--ease-out);
+}
+@keyframes pop {
+  40% {
+    transform: scale(1.3);
   }
 }

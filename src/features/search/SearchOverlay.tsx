@@ -231,7 +231,7 @@ export function SearchOverlay({ onClose }: { onClose: () => void }) {
                       onClick={() => open(option)}
                       className={`${rowClass} ${index === active ? 'bg-sand-100' : ''}`}
                     >
-                      <OptionRow option={option} />
+                      <OptionRow option={option} onRemove={removeRecent} />
                     </li>
                   ))}
                 </ul>
@@ -280,7 +280,13 @@ export function SearchOverlay({ onClose }: { onClose: () => void }) {
   );
 }
 
-function OptionRow({ option }: { option: SearchOption }) {
+function OptionRow({
+  option,
+  onRemove,
+}: {
+  option: SearchOption;
+  onRemove: (term: string) => Promise<void>;
+}) {
   const t = useTranslations('search');
   const format = useFormat();
 
@@ -289,6 +295,20 @@ function OptionRow({ option }: { option: SearchOption }) {
       <>
         <Clock aria-hidden className="size-5 shrink-0 text-ink-500" />
         <span className="min-w-0 flex-1 truncate">{option.term}</span>
+        {/* Mouse and touch only: the input keeps focus, and keyboard users press Delete. */}
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-label={t('removeRecent', { term: option.term })}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={(event) => {
+            event.stopPropagation();
+            void onRemove(option.term);
+          }}
+          className="-my-1 -me-2 grid size-11 shrink-0 place-items-center rounded-full text-ink-500 hover:bg-sand-200 hover:text-ink-900"
+        >
+          <X aria-hidden className="size-4" />
+        </button>
       </>
     );
   }

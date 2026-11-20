@@ -1,13 +1,16 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useState, type KeyboardEvent } from 'react';
 import { galleryColorId, photoCount } from '@/data/images';
 import type { Product, ProductColor } from '@/data/types';
 import { ProductImage } from '@/features/catalog/components/ProductImage';
 import { useFormat } from '@/lib/hooks/useFormat';
-import { Lightbox } from './Lightbox';
+
+/** The zoom view is its own chunk: it is fetched the first time a photo is opened. */
+const Lightbox = dynamic(() => import('./Lightbox').then((m) => m.Lightbox), { ssr: false });
 
 interface GalleryProps {
   product: Product;

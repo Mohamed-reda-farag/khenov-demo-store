@@ -16,14 +16,16 @@ interface ProductRailProps {
   href: string;
   load: () => Promise<Product[]>;
   loadKey: string;
+  /** The products known at build time; they render in the static HTML. */
+  initial?: Product[];
 }
 
 /** A titled grid of products with its own loading and error state. */
-export function ProductRail({ id, title, lead, href, load, loadKey }: ProductRailProps) {
+export function ProductRail({ id, title, lead, href, load, loadKey, initial }: ProductRailProps) {
   const t = useTranslations('home');
   const states = useTranslations('states');
   const common = useTranslations('common');
-  const state = useAsync(loadKey, load);
+  const state = useAsync(loadKey, load, initial);
 
   return (
     <section aria-labelledby={`${id}-title`}>

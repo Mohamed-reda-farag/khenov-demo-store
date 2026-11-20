@@ -24,10 +24,9 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
       type="button"
       onClick={switchLocale}
       aria-label={t('switchLabel')}
-      lang={next}
       className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-pill px-3 text-sm font-semibold hover:bg-sand-100 ${className}`}
     >
-      {t('switchTo')}
+      <span lang={next}>{t('switchTo')}</span>
     </button>
   );
 }

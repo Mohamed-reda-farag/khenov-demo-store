@@ -15,14 +15,14 @@ const linkClass =
 
 export function MegaNav() {
   const t = useTranslations('nav');
-  const common = useTranslations('common');
-  const locale = useLocale() as Locale;
   const panelId = useId();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const nav = useAsync('nav', loadNavData);
+  // The menu's data is only requested once it has been opened; most visits never do.
+  const [everOpened, setEverOpened] = useState(false);
+  if (open && !everOpened) setEverOpened(true);
 
   const cancelClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -88,90 +88,7 @@ export function MegaNav() {
           hidden={!open}
           className="absolute inset-x-0 top-full z-mega border-t border-sand-200 bg-paper shadow-lift"
         >
-          <div className="container-page grid grid-cols-[1fr_1fr_1.2fr] gap-12 py-10">
-            {nav.status === 'loading' ? (
-              <>
-                <NavSkeleton />
-                <NavSkeleton />
-                <Skeleton className="h-48 w-full rounded-lg" />
-              </>
-            ) : nav.status === 'error' ? (
-              <div className="col-span-3 py-6 text-center">
-                <button
-                  type="button"
-                  onClick={nav.retry}
-                  className="text-sm text-accent-600 underline"
-                >
-                  {common('retry')}
-                </button>
-              </div>
-            ) : (
-              <>
-                <section aria-label={t('byCategory')}>
-                  <h3 className="mb-3 text-xs font-semibold tracking-wide text-ink-500 uppercase">
-                    {t('byCategory')}
-                  </h3>
-                  <ul className="flex flex-col">
-                    <li>
-                      <Link
-                        href="/shop"
-                        onClick={() => setOpen(false)}
-                        className="inline-flex min-h-11 items-center text-lg font-medium hover:underline"
-                      >
-                        {t('shopAll')}
-                      </Link>
-                    </li>
-                    {nav.data.categories.map((c) => (
-                      <li key={c.id}>
-                        <Link
-                          href={`/category/${c.slug}`}
-                          onClick={() => setOpen(false)}
-                          className="inline-flex min-h-11 items-center hover:underline"
-                        >
-                          {c.name[locale]}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-                <section aria-label={t('byCollection')}>
-                  <h3 className="mb-3 text-xs font-semibold tracking-wide text-ink-500 uppercase">
-                    {t('byCollection')}
-                  </h3>
-                  <ul className="flex flex-col">
-                    {nav.data.collections.map((c) => (
-                      <li key={c.id}>
-                        <Link
-                          href={`/collection/${c.slug}`}
-                          onClick={() => setOpen(false)}
-                          className="inline-flex min-h-11 items-center hover:underline"
-                        >
-                          {c.name[locale]}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-                {nav.data.promo ? (
-                  <Link
-                    href={nav.data.promo.href}
-                    onClick={() => setOpen(false)}
-                    className="group relative block overflow-hidden rounded-lg"
-                  >
-                    <span className="relative block h-56 w-full">
-                      <BannerImage banner={nav.data.promo} sizes="360px" />
-                    </span>
-                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-900/70 to-transparent p-5 text-white">
-                      <span className="block font-display text-lg font-semibold">
-                        {nav.data.promo.title[locale]}
-                      </span>
-                      <span className="text-sm opacity-90">{nav.data.promo.cta[locale]}</span>
-                    </span>
-                  </Link>
-                ) : null}
-              </>
-            )}
-          </div>
+          {everOpened ? <MegaPanel onNavigate={() => setOpen(false)} /> : null}
         </div>
       </div>
 
@@ -182,6 +99,97 @@ export function MegaNav() {
         {t('offers')}
       </Link>
     </nav>
+  );
+}
+
+/** The menu's contents: categories, collections and the promo tile. Mounted on first open. */
+function MegaPanel({ onNavigate }: { onNavigate: () => void }) {
+  const t = useTranslations('nav');
+  const common = useTranslations('common');
+  const locale = useLocale() as Locale;
+  const nav = useAsync('nav', loadNavData);
+
+  return (
+    <div className="container-page grid grid-cols-[1fr_1fr_1.2fr] gap-12 py-10">
+      {nav.status === 'loading' ? (
+        <>
+          <NavSkeleton />
+          <NavSkeleton />
+          <Skeleton className="h-48 w-full rounded-lg" />
+        </>
+      ) : nav.status === 'error' ? (
+        <div className="col-span-3 py-6 text-center">
+          <button type="button" onClick={nav.retry} className="text-sm text-accent-600 underline">
+            {common('retry')}
+          </button>
+        </div>
+      ) : (
+        <>
+          <section aria-label={t('byCategory')}>
+            <h3 className="mb-3 text-xs font-semibold tracking-wide text-ink-500 uppercase">
+              {t('byCategory')}
+            </h3>
+            <ul className="flex flex-col">
+              <li>
+                <Link
+                  href="/shop"
+                  onClick={() => onNavigate()}
+                  className="inline-flex min-h-11 items-center text-lg font-medium hover:underline"
+                >
+                  {t('shopAll')}
+                </Link>
+              </li>
+              {nav.data.categories.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    href={`/category/${c.slug}`}
+                    onClick={() => onNavigate()}
+                    className="inline-flex min-h-11 items-center hover:underline"
+                  >
+                    {c.name[locale]}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section aria-label={t('byCollection')}>
+            <h3 className="mb-3 text-xs font-semibold tracking-wide text-ink-500 uppercase">
+              {t('byCollection')}
+            </h3>
+            <ul className="flex flex-col">
+              {nav.data.collections.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    href={`/collection/${c.slug}`}
+                    onClick={() => onNavigate()}
+                    className="inline-flex min-h-11 items-center hover:underline"
+                  >
+                    {c.name[locale]}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+          {nav.data.promo ? (
+            <Link
+              href={nav.data.promo.href}
+              onClick={() => onNavigate()}
+              className="group relative block overflow-hidden rounded-lg"
+            >
+              <span className="relative block h-56 w-full">
+                <BannerImage banner={nav.data.promo} sizes="360px" />
+              </span>
+              <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-900/70 to-transparent p-5 text-white">
+                <span className="block font-display text-lg font-semibold">
+                  {nav.data.promo.title[locale]}
+                </span>
+                <span className="text-sm opacity-90">{nav.data.promo.cta[locale]}</span>
+              </span>
+            </Link>
+          ) : null}
+        </>
+      )}
+    </div>
   );
 }
 

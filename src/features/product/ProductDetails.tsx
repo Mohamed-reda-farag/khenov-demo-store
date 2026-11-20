@@ -12,6 +12,7 @@ export function ProductDetails({ product }: { product: Product }) {
   return (
     <Accordion
       defaultOpen={['details']}
+      headingLevel={2}
       items={[
         {
           id: 'details',

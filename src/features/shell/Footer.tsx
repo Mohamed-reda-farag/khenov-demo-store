@@ -75,6 +75,16 @@ export function Footer() {
                 {t('helpSizeGuide')}
               </Link>
             </li>
+            <li>
+              <Link href="/help/contact" className={linkClass}>
+                {t('helpContact')}
+              </Link>
+            </li>
+            <li>
+              <Link href="/help/privacy" className={linkClass}>
+                {t('helpPrivacy')}
+              </Link>
+            </li>
           </ul>
         </div>
 
