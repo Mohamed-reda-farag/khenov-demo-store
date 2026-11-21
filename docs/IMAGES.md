@@ -5,8 +5,10 @@ silhouette on a studio background). Real photos replace the placeholders automat
 
 ## Rules
 
-1. **Sources:** only [Unsplash](https://unsplash.com) or [Pexels](https://www.pexels.com). Both licences
+1. **Sources:** real photos only from [Unsplash](https://unsplash.com) or [Pexels](https://www.pexels.com). Both licences
    allow free commercial use without attribution. Do not use Google Images or any other site.
+   **AI-generated images** (an extra angle, the same shoe in another colour, or a whole set) are allowed when no real photo exists,
+   but they must be recorded as such in `docs/IMAGE_CREDITS.md` (photographer column: `AI Generated`); the Privacy page says so.
 2. **No brands:** choose photos where no logo, swoosh, stripe pattern or wordmark is clearly visible.
 3. **Shoes only:** no faces, no recognisable people. A plain or studio background looks best.
 4. **Size:** at least **1600 px** on the long side. Portrait or square is best (the site crops to 4:5).
@@ -33,36 +35,40 @@ If a colour has both styles of file, the explicit `<slug>-<colorId>-<n>` name wi
 
 | Product slug       | Colour ids (use in the file name) | Photographed colour (older-style files) |
 | ------------------ | --------------------------------- | --------------------------------------- |
-| `nile-low`         | `ivory`, `sand`                   | `ivory`                                 |
+| `nile-low`         | `white`, `ivory`, `sand`          | `white`                                 |
 | `dune-court`       | `sand`, `black`, `ivory`          | `sand`                                  |
-| `corniche-hi`      | `black`, `ivory`                  | `black`                                 |
+| `corniche-hi`      | `black`, `ivory`, `navy`          | `black`                                 |
 | `souk-canvas`      | `navy`, `terracotta`, `ivory`     | `navy`                                  |
-| `oasis-leather`    | `ivory`, `olive`                  | `ivory`                                 |
-| `maadi-retro`      | `terracotta`, `navy`              | `terracotta`                            |
+| `oasis-leather`    | `ivory`, `olive`, `black`         | `black`                                 |
+| `maadi-retro`      | `terracotta`, `cobalt`, `navy`    | `cobalt`                                |
 | `sprint-delta`     | `black`, `cobalt`, `ivory`        | `black`                                 |
 | `cairo-tempo`      | `stone`, `terracotta`             | `stone`                                 |
-| `nile-trail`       | `olive`, `black`                  | `olive`                                 |
+| `nile-trail`       | `olive`, `black`, `navy`          | `navy`                                  |
 | `pace-light`       | `ivory`, `cobalt`                 | `ivory`                                 |
-| `marathon-pro`     | `black`, `terracotta`             | `black`                                 |
-| `siwa-chukka`      | `tan`, `black`                    | `tan`                                   |
+| `marathon-pro`     | `black`, `terracotta`, `cobalt`   | `cobalt`                                |
+| `siwa-chukka`      | `tan`, `black`, `beige`           | `beige`                                 |
 | `atlas-chelsea`    | `black`, `tan`                    | `black`                                 |
-| `sinai-hiker`      | `olive`, `tan`                    | `olive`                                 |
-| `alex-work`        | `tan`, `black`                    | `tan`                                   |
-| `sahel-slide`      | `sand`, `black`, `ivory`          | `sand`                                  |
-| `dahab-strap`      | `tan`, `cobalt`                   | `tan`                                   |
-| `luxor-leather`    | `tan`, `black`                    | `tan`                                   |
-| `marsa-cork`       | `sand`, `olive`                   | `sand`                                  |
-| `zamalek-loafer`   | `black`, `tan`                    | `black`                                 |
-| `khan-derby`       | `black`, `tan`                    | `black`                                 |
-| `giza-oxford`      | `black`, `tan`                    | `black`                                 |
-| `heliopolis-penny` | `tan`, `navy`                     | `tan`                                   |
-| `garden-city-mule` | `sand`, `black`                   | `sand`                                  |
+| `sinai-hiker`      | `olive`, `tan`, `black`           | `black`                                 |
+| `alex-work`        | `tan`, `brown`, `black`           | `brown`                                 |
+| `sahel-slide`      | `sand`, `black`, `ivory`          | `black`                                 |
+| `dahab-strap`      | `tan`, `cobalt`, `black`          | `black`                                 |
+| `luxor-leather`    | `tan`, `black`, `olive`           | `tan`                                   |
+| `marsa-cork`       | `sand`, `olive`, `beige`          | `beige`                                 |
+| `zamalek-loafer`   | `black`, `tan`, `brown`           | `black`                                 |
+| `khan-derby`       | `black`, `tan`, `brown`           | `brown`                                 |
+| `giza-oxford`      | `black`, `tan`, `brown`           | `black`                                 |
+| `heliopolis-penny` | `tan`, `black`, `brown`           | `tan`                                   |
+| `garden-city-mule` | `sand`, `black`                   | `black`                                 |
 
-Colour ids in the whole catalogue: `ivory`, `sand`, `black`, `navy`, `terracotta`, `olive`, `cobalt`,
-`stone`, `tan`. A colour that is not in the list (for example `brown`) is reported by the script and
-ignored; ask the team to add it (id, Arabic and English name, swatch) before photographing it.
+Colour ids in the whole catalogue: `white`, `ivory`, `black`, `sand`, `beige`, `brown`, `olive`, `terracotta`, `navy`, `stone`, `tan`, `cobalt`. A colour id that is not in this list is reported by the script and
+ignored; add it to `COLORS` in `src/data/seed/catalog-meta.ts` (id, Arabic and English name, swatch) before photographing it.
+The table above is generated from `src/data/seed/products.ts`: after you change a product's colours, update it to match.
 
 ### Rule: a colour is sold only if it has photos
+
+A product page opens on the available colour with the **most photos** (the first listed colour wins a tie), so give at least
+one colour a full set of three. Colours with a single photo work, but their gallery has no thumbnails. A colour without photos
+that someone selects shows the photos of the colour with the most photos, with a note saying so.
 
 A colour with at least one photo is "Available" (stock as defined in the seed). A colour with no photo is
 shown as "Sold out" until its photos are added. Picking a colour on the product page, the shop card, the
@@ -129,5 +135,13 @@ Because the file layout changed in M2, run `npm run images:optimize` once after 
 
 ## Credits
 
-Keep a record in `docs/IMAGE_CREDITS.md` (filename, photographer, link); the file already lists every expected filename. It is not legally required
-by either licence, but it is good practice and makes the portfolio pack easier to write.
+Keep a record in `docs/IMAGE_CREDITS.md` (filename, photographer, link). Neither licence requires it, but it keeps the project honest
+and the Privacy page points to it. For an AI-generated variation write `AI Generated` (or `AI-generated`) as the photographer (the link can be `n/a`): the
+row counts as complete and is reported separately. After adding or removing photos:
+
+```powershell
+npm run images:credits               # report: photos without a row, stale rows, rows still "pending"
+npm run images:credits -- --write    # add a pending row per new photo, drop rows of deleted photos
+```
+
+Filled-in rows are never touched. Fill every "pending" row (photographer and the Unsplash / Pexels page, or `AI-generated`) **before the site goes public**.

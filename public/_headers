@@ -1,0 +1,19 @@
+# Response headers for Cloudflare Pages (also read by Netlify and Cloudflare Workers static assets).
+# Paths are matched against the published site, so there is no base path here: this file is for a
+# root deployment. See README.md > Deploy.
+
+# Hashed build output: the file name changes whenever the content does, so cache it for a year.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Product photos keep their file name when you replace a photo, so allow a day of browser
+# caching and let a stale copy be shown for a week while it refreshes in the background.
+/images/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# Basic hardening for every response. No CSP and no X-Frame-Options on purpose: the demo's inline
+# bootstrap scripts would need per-build hashes, and the portfolio may want to embed the demo.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()

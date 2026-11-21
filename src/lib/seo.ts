@@ -12,6 +12,9 @@ export const SITE_URL = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost
  */
 const ALLOW_INDEXING = process.env['NEXT_PUBLIC_ALLOW_INDEXING'] === 'true';
 
+/** Public address of the repository (no trailing slash); the Privacy page links its photo credits when set. */
+export const REPO_URL = (process.env['NEXT_PUBLIC_REPO_URL'] ?? '').replace(/\/$/, '');
+
 const OG_LOCALE: Record<AppLocale, string> = { ar: 'ar_EG', en: 'en_US' };
 
 export const withBase = (path: string): string => `${BASE_PATH}${path}`;

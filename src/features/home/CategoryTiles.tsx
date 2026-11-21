@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/StateBlocks';
-import { firstPhotoColorId } from '@/data/images';
+import { mainPhotoColorId } from '@/data/images';
 import { catalogRepository } from '@/data/repository';
 import type { Category } from '@/data/types';
 import { ArtTile, ProductImage } from '@/features/catalog/components/ProductImage';
@@ -73,7 +73,7 @@ export function CategoryTiles({ initial }: { initial?: CategoryTile[] }) {
         <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
           {state.data.map(({ category, count }) => {
             const art = artFor(category.id, category.coverSlug);
-            const coverColorId = firstPhotoColorId(category.coverSlug);
+            const coverColorId = mainPhotoColorId(category.coverSlug);
             return (
               <li key={category.id}>
                 <Link

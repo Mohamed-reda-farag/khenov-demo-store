@@ -3,7 +3,7 @@ import { hasLocale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { firstPhotoColorId } from '@/data/images';
+import { mainPhotoColorId } from '@/data/images';
 import { catalogStatic } from '@/data/repository/catalog.static';
 import { ProductContent, ProductView } from '@/features/product/ProductView';
 import { routing } from '@/i18n/routing';
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const brand = await getTranslations({ locale, namespace: 'brand' });
   const title = `${product.name[locale]} — ${brand('name')}`;
   const description = `${product.tagline[locale]}. ${product.description[locale]}`;
-  const photoColor = firstPhotoColorId(slug);
+  const photoColor = mainPhotoColorId(slug);
   const image = photoColor ? `/images/products/${slug}/${photoColor}-1-960.webp` : undefined;
   return pageMetadata({ locale, path: `/product/${slug}/`, title, description, image });
 }

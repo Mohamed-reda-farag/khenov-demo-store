@@ -41,23 +41,44 @@ export function photoSrc(slug: string, colorId: string, index: number): string {
   return `/images/products/${slug}/${colorId}-${index + 1}`;
 }
 
-/** A colour of the product that has photos (alphabetical), for tiles that have no colour context. */
-export function firstPhotoColorId(slug: string, manifest: PhotoManifest = IMAGE_MANIFEST) {
-  return Object.keys(manifest[slug] ?? {}).sort()[0];
+/**
+ * Among `colorIds` (in order), the one with the most photos; the first wins a tie. `undefined`
+ * when none has photos. A single-photo colour never outranks a full set.
+ */
+export function colorWithMostPhotos(
+  slug: string,
+  colorIds: readonly string[],
+  manifest: PhotoManifest = IMAGE_MANIFEST,
+): string | undefined {
+  let best: string | undefined;
+  let bestCount = 0;
+  for (const id of colorIds) {
+    const count = photoCount(slug, id, manifest);
+    if (count > bestCount) {
+      best = id;
+      bestCount = count;
+    }
+  }
+  return best;
 }
 
-/** The colour to take a product's photo from (cart lines, orders): the chosen one, else any with photos. */
+/** The colour that has the most photos, for tiles and metadata with no colour context (ties: alphabetical). */
+export function mainPhotoColorId(slug: string, manifest: PhotoManifest = IMAGE_MANIFEST) {
+  return colorWithMostPhotos(slug, Object.keys(manifest[slug] ?? {}).sort(), manifest);
+}
+
+/** The colour to take a product's photo from (cart lines, orders): the chosen one, else the one with most photos. */
 export function photoColorFor(
   slug: string,
   colorId: string,
   manifest: PhotoManifest = IMAGE_MANIFEST,
 ): string | undefined {
-  return hasPhotos(slug, colorId, manifest) ? colorId : firstPhotoColorId(slug, manifest);
+  return hasPhotos(slug, colorId, manifest) ? colorId : mainPhotoColorId(slug, manifest);
 }
 
 /**
  * The colour whose photos the gallery shows: the selected colour when it has photos, otherwise
- * the first colour that does. `undefined` means the product has no photos at all.
+ * the colour with the most photos. `undefined` means the product has no photos at all.
  */
 export function galleryColorId(
   product: { slug: string; colors: readonly { id: string }[] },
@@ -65,5 +86,9 @@ export function galleryColorId(
   manifest: PhotoManifest = IMAGE_MANIFEST,
 ): string | undefined {
   if (hasPhotos(product.slug, selectedColorId, manifest)) return selectedColorId;
-  return product.colors.find((c) => hasPhotos(product.slug, c.id, manifest))?.id;
+  return colorWithMostPhotos(
+    product.slug,
+    product.colors.map((c) => c.id),
+    manifest,
+  );
 }

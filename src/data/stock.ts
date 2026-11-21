@@ -1,3 +1,4 @@
+import { colorWithMostPhotos, IMAGE_MANIFEST, type PhotoManifest } from './images';
 import type { Product, ProductColor } from './types';
 
 /** At or below this many pairs a size is shown as "low stock". */
@@ -29,7 +30,19 @@ export function allSizes(product: Product): number[] {
   return [...sizes].sort((a, b) => a - b);
 }
 
-/** The colour a page should open on: the first one that can actually be bought. */
-export function defaultColor(product: Product): ProductColor | undefined {
-  return product.colors.find(colorHasStock) ?? product.colors[0];
+/**
+ * The colour a page should open on: among the colours that can be bought, the one with the most
+ * photos (the first listed wins a tie), so a full gallery is what shoppers see first.
+ */
+export function defaultColor(
+  product: Product,
+  manifest: PhotoManifest = IMAGE_MANIFEST,
+): ProductColor | undefined {
+  const buyable = product.colors.filter(colorHasStock);
+  const id = colorWithMostPhotos(
+    product.slug,
+    buyable.map((c) => c.id),
+    manifest,
+  );
+  return buyable.find((c) => c.id === id) ?? buyable[0] ?? product.colors[0];
 }

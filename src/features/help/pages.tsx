@@ -5,6 +5,7 @@ import type { Locale } from '@/data/types';
 import { SizeGuideContent } from '@/features/product/SizeGuideContent';
 import { Link } from '@/i18n/navigation';
 import { formatNumber, formatPrice } from '@/lib/format';
+import { REPO_URL } from '@/lib/seo';
 import { ContactForm } from './ContactForm';
 import { Faq } from './Faq';
 import { HelpLayout, HelpSection } from './HelpLayout';
@@ -137,6 +138,19 @@ export function PrivacyPage() {
       </HelpSection>
       <HelpSection title={t('toolsTitle')}>
         <p>{t('tools')}</p>
+      </HelpSection>
+      <HelpSection title={t('photosTitle')}>
+        <p>{t('photos')}</p>
+        {REPO_URL ? (
+          <a
+            href={`${REPO_URL}/blob/main/docs/IMAGE_CREDITS.md`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-fit font-medium underline underline-offset-4"
+          >
+            {t('photosLink')} <span className="sr-only">{t('photosNewTab')}</span>
+          </a>
+        ) : null}
       </HelpSection>
       <p className="text-sm text-ink-500">{t('madeBy')}</p>
     </HelpLayout>

@@ -1,0 +1,40 @@
+{
+  "slug": "athar-footwear-store",
+  "type": "Demo",
+  "year": 2026,
+  "title": {
+    "ar": "أثر: متجر أحذية (عرض تجريبي)",
+    "en": "ATHAR: Footwear Store (Demo)"
+  },
+  "summary": {
+    "ar": "متجر أحذية خيالي بلغتين (عربي RTL وإنجليزي) يعرض رحلة تسوّق كاملة من التصفح إلى الطلب. عرض تجريبي من KHENOV.",
+    "en": "A fictional bilingual (Arabic RTL and English) shoe store showing a complete shopping journey, from browsing to order. A demo by KHENOV."
+  },
+  "disclaimer": {
+    "ar": "عرض تجريبي: متجر ومنتجات وأسعار خيالية، بلا دفع حقيقي.",
+    "en": "Demo: fictional store, products and prices. No real payments."
+  },
+  "tags": [
+    { "ar": "تجارة إلكترونية", "en": "E-commerce" },
+    { "ar": "Next.js", "en": "Next.js" },
+    { "ar": "عربي RTL", "en": "Arabic / RTL" },
+    { "ar": "إتاحة", "en": "Accessibility" }
+  ],
+  "links": {
+    "demo": "https://REPLACE-WITH-PROJECT-NAME.pages.dev/",
+    "repository": "https://github.com/REPLACE-WITH-YOUR-USER/khenov-demo-store"
+  },
+  "media": {
+    "cover": "cover-1600x1000.webp",
+    "poster": "athar-demo-poster.webp",
+    "video": "athar-demo.mp4",
+    "screenshots": [
+      "01-home-ar-desktop.webp",
+      "02-shop-ar-desktop.webp",
+      "03-product-en-desktop.webp",
+      "04-product-ar-mobile.webp",
+      "05-cart-drawer-ar-mobile.webp",
+      "06-checkout-en-desktop.webp"
+    ]
+  }
+}

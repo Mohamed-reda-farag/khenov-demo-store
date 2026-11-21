@@ -169,7 +169,7 @@
     "materials": "Materials",
     "sku": "SKU",
     "deliveryTitle": "Delivery",
-    "deliveryBody": "Delivery across Egypt in 2–5 working days. Free over EGP 2,000, otherwise EGP 60. This is a demo: nothing is shipped.",
+    "deliveryBody": "Delivery across Egypt in 2–5 working days. Free over EGP 2,500, otherwise EGP 60. This is a demo: nothing is shipped.",
     "returnsTitle": "Returns & exchanges",
     "returnsBody": "Unworn pairs can be returned or exchanged within 14 days. This is a demo policy for illustration only.",
     "relatedTitle": "You may also like",
@@ -277,7 +277,7 @@
         "body": "A size guide in centimetres on every product."
       },
       "delivery": {
-        "title": "Free delivery over EGP 2,000",
+        "title": "Free delivery over EGP 2,500",
         "body": "Across Egypt. A demo promise: nothing ships."
       },
       "returns": {
@@ -598,6 +598,10 @@
       "reset": "Use “Reset demo” in the footer to remove everything the demo saved and return the store to its starting state. Clearing site data in your browser does the same.",
       "toolsTitle": "Demo tools",
       "tools": "Add ?demo=fast to a page address for instant responses, ?demo=error to see how every screen behaves when loading fails, or ?demo=off to turn the helpers off.",
+      "photosTitle": "About the photos",
+      "photos": "Some product photos come from Unsplash and Pexels photographers, under free-use licences. Where no suitable real photo was available, images were generated with an AI image tool: extra angles, colour variations and, for a few products, the whole set. Every image is listed in the project's credits file.",
+      "photosLink": "Photo credits",
+      "photosNewTab": "(opens in a new tab)",
       "madeBy": "Made by KHENOV."
     }
   },

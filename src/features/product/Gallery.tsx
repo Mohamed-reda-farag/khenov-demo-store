@@ -14,7 +14,7 @@ const Lightbox = dynamic(() => import('./Lightbox').then((m) => m.Lightbox), { s
 
 interface GalleryProps {
   product: Product;
-  /** The selected colour: its photos are shown (or the first colour that has photos). */
+  /** The selected colour: its photos are shown (or the colour with the most photos). */
   color: ProductColor;
   /** Load the first image eagerly (only the page's LCP image should). */
   priority?: boolean;

@@ -7,7 +7,7 @@ out
 next-env.d.ts
 *.tsbuildinfo
 
-# env (this project needs none, but never commit them)
+# env files (every variable is optional, see .env.example; never commit real ones)
 .env*
 !.env.example
 
@@ -19,3 +19,6 @@ Thumbs.db
 # raw photo originals are not committed; optimized WebP in public/images is
 assets-source/products/*
 !assets-source/products/.gitkeep
+
+# portfolio screenshots and recordings (made by `npm run portfolio:shots`)
+portfolio-media/

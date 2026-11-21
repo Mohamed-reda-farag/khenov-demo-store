@@ -5,14 +5,15 @@ Brand is invented: **ATHAR / أثر**. All data is fictional.
 
 ## Status
 
-| Milestone                                                  | State    |
-| ---------------------------------------------------------- | -------- |
-| M0 Foundation                                              | **Done** |
-| M1 Home + Shop + filters + product page                    | **Done** |
-| M1.1 Per-colour sold-out rule                              | **Done** |
-| M2 Cart, checkout, orders, wishlist, search, colour photos | **Done** |
-| M3 Polish, performance, help pages, 404, SEO               | **Done** |
-| M4 Static build, hosting, README, portfolio pack           | Next     |
+| Milestone                                                  | State                     |
+| ---------------------------------------------------------- | ------------------------- |
+| M0 Foundation                                              | **Done**                  |
+| M1 Home + Shop + filters + product page                    | **Done**                  |
+| M1.1 Per-colour sold-out rule                              | **Done**                  |
+| M2 Cart, checkout, orders, wishlist, search, colour photos | **Done**                  |
+| M3 Polish, performance, help pages, 404, SEO               | **Done**                  |
+| M4 Hosting, README, portfolio pack, release hygiene        | **Done**                  |
+| M4.1 QA with the owner's real seed and photo manifest      | **Done** (see M4.1 notes) |
 
 ## Done in M0
 
@@ -59,7 +60,7 @@ Brand is invented: **ATHAR / أثر**. All data is fictional.
   results page that reuses `ShopListing`.
 - **Colour photos**: `<slug>-<colorId>-<n>` files, manifest `slug → colour → count`, a colour is sold only if it has
   photos, gallery / card / cart / wishlist / orders follow the colour. Script reports missing colours.
-- Rules in `src/data/rules` with tests. `SEED_VERSION = 4`. New dependency: zod.
+- Rules in `src/data/rules` with tests. `SEED_VERSION = 4` (now 5, see M4.1). New dependency: zod.
 
 ## Done in M3
 
@@ -93,9 +94,53 @@ Brand is invented: **ATHAR / أثر**. All data is fictional.
   `noindex` tag from crawlers, and a sitemap would contradict it.
 - Tests: 192 (adds `useAsync` initial-data behaviour in jsdom and the SEO helpers). No new dependencies.
 
+## Done in M4
+
+- **Hosting:** Cloudflare Pages recommended (free, no card, root address so `NEXT_PUBLIC_BASE_PATH` stays empty). Steps in
+  `docs/DEPLOY.md`; `public/_headers` sets the cache rules (hashed assets for a year, photos for a day) and basic hardening.
+  No `_redirects`: the root page redirects in the browser so the remembered language wins, and the host serves `404.html` itself.
+- **Verified builds:** root and sub-path (`/khenov-demo-store`) builds both pass `npm run verify:export` and were browsed through a
+  Pages-like static host: root redirect and remembered language, product photos, order page with a query parameter, unknown
+  address → bilingual 404, no-trailing-slash redirect, client navigation, no console errors.
+- `scripts/verify-export.ts` (`npm run verify:export`): every link/script/image/srcset in `out/` resolves, required pages exist,
+  canonical and favicon respect the base path, README/docs links resolve. `--production` also fails on a localhost canonical or missing `_headers`.
+- `README.md` (English + short Arabic), `docs/DEPLOY.md`, `.env.example`.
+- **Credits:** `npm run images:credits` keeps `docs/IMAGE_CREDITS.md` in step with the shipped photos (pure helpers in
+  `src/data/photo-credits.ts`, tested). The Privacy page has an "About the photos" section; it links the credits file when
+  `NEXT_PUBLIC_REPO_URL` is set. **Rows are still "pending" until the owner fills them in.**
+- **Portfolio pack** (`docs/portfolio`): cover spec, six-shot list, `npm run portfolio:shots` (dev dependency `playwright-core`,
+  drives the installed Chrome/Edge, downloads nothing), 30-second video script with ffmpeg commands, AR/EN summary, card JSON.
+- Hygiene: version 1.0.0, `npm audit` 0 vulnerabilities (a dev-only `minimatch` advisory fixed with `npm audit fix`), `.gitignore`
+  keeps `assets-source/products/*` out (originals are large; optimised WebP and the manifest are committed).
+- **Open (owner):** set the env vars on the host, Lighthouse on the deployed address. Credits are complete (see M4.1).
+
+## Done in M4.1
+
+QA with the owner's own `src/data/seed` files and `image-manifest.json` (89 photos, 40 colours with photos, 28 without). The photos
+themselves were not available, so the pages were exercised with generated stand-ins of the same names and counts, in three aspect
+ratios (4:5, 1:1, 3:2). What was checked: every product x colour x language at 360 and 1024 px (272 colour views per width pair),
+gallery photo count and colour, thumbnails, broken images, layout shift, console and network errors; shop, category, collection, search
+and home for broken images.
+
+- **Fixed: free-shipping copy said EGP 2,000, checkout applies 2,500.** Four strings (home values, product delivery text, the seed banner,
+  in both languages) now say 2,500; `shipping-copy.test.ts` ties them to `FREE_SHIPPING_THRESHOLD`. `SEED_VERSION` is 5 (the banner is seed data).
+- **Fixed: default colour.** Pages and cards opened on the first listed colour, even with one photo. The default is now the available colour
+  with the most photos, and fallbacks (colour without photos, cart lines, tiles, share image) use the same rule instead of "first" or
+  "alphabetical". Five products were affected (khan-derby, siwa-chukka, oasis-leather, maadi-retro, marathon-pro).
+- **Fixed: breadcrumb wrap shifted the page** (CLS 0.185 at 360 px in Arabic for long names): the trail is one line now, the current page truncates.
+- **Credits:** a row can say `AI-generated`; it counts as complete and is reported separately. The Privacy text says that some extra angles
+  and colour variations were generated with an AI image tool.
+- `docs/IMAGES.md`: colour table regenerated from the owner's seed, new colours `white`, `beige`, `brown`, AI-variation rule, default-colour rule.
+- **Credits complete:** 89 rows, 46 real photos with photographer and page, 43 marked `AI Generated`, 0 pending. The Privacy text discloses that
+  some images (extra angles, colour variations, a few full sets) were generated with an AI image tool. The table renderer aligns by display
+  width so CJK photographer names pass Prettier. Open question for the owner: several real photos show visible brands (see the M4.1 report).
+- Tests: 202.
+- **Known:** at 1024 px in Arabic, two long names (garden-city-mule, heliopolis-penny) shift by CLS about 0.015 when the web font replaces the
+  fallback (the title wraps). Well under 0.1; a fallback-font metric override would remove it.
+
 ## Next
 
-M4 — static build and hosting notes, README, portfolio pack (screenshots, recording with `?demo=fast`), final QA on real photos.
+Nothing planned. Maintenance only: new photos (`docs/IMAGES.md`), deploy changes (`docs/DEPLOY.md`).
 
 ## Decisions
 
@@ -135,5 +180,5 @@ Useful URLs: `/ar/?demo=fast` (no delays), `/en/?demo=error` (force error states
 
 ## Seed version
 
-`SEED_VERSION = 4` in `src/lib/demo/config.ts`. Bump it whenever seed data or persisted shapes change;
+`SEED_VERSION = 5` in `src/lib/demo/config.ts`. Bump it whenever seed data or persisted shapes change;
 every visitor is reseeded automatically and old keys are purged.

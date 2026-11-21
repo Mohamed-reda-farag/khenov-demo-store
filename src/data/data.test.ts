@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ratingDistribution } from './rating';
+import { buildProducts } from './seed/products';
 import { TEST_PRODUCTS as PRODUCTS } from './testing';
 import {
   LOW_STOCK_MAX,
@@ -28,6 +29,15 @@ describe('stock helpers', () => {
     expect(isProductSoldOut(mule)).toBe(true);
     expect(defaultColor(mule)).toBe(mule.colors[0]);
     expect(colorHasStock(mule.colors[0]!)).toBe(false);
+  });
+
+  it('opens on the colour with the fullest gallery, not just the first one listed', () => {
+    const derby = buildProducts({ 'khan-derby': { black: 1, brown: 3 } }).find(
+      (p) => p.slug === 'khan-derby',
+    )!;
+    expect(derby.colors.map((c) => c.id)).toEqual(['black', 'tan', 'brown']);
+    expect(defaultColor(derby, { 'khan-derby': { black: 1, brown: 3 } })?.id).toBe('brown');
+    expect(defaultColor(derby, { 'khan-derby': { black: 1 } })?.id).toBe('black');
   });
 
   it('reads stock for a colour and size, and lists sizes ascending', () => {

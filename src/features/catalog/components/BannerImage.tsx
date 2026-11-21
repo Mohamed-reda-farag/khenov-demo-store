@@ -1,4 +1,4 @@
-import { firstPhotoColorId } from '@/data/images';
+import { mainPhotoColorId } from '@/data/images';
 import type { Banner } from '@/data/types';
 import { ArtTile, ProductImage } from '@/features/catalog/components/ProductImage';
 
@@ -25,7 +25,7 @@ export function BannerImage({
   alt?: string;
 }) {
   const slug = banner.productSlug;
-  const colorId = slug ? firstPhotoColorId(slug) : undefined;
+  const colorId = slug ? mainPhotoColorId(slug) : undefined;
   if (slug && colorId) {
     return (
       <ProductImage

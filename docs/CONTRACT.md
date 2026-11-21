@@ -117,3 +117,20 @@ Also update `PROJECT_STATE.md` in the repo root (done / next / decisions / how t
 - **SEO:** use `pageMetadata()` from `src/lib/seo.ts` for every page. Share images and icons go through `withBase()`.
   The site is `noindex` unless `NEXT_PUBLIC_ALLOW_INDEXING=true`.
 - **Help copy** that states a policy is fictional and says so on every help page.
+
+## M4 addenda (release)
+
+- **Deploy target:** a static host at the root of its domain; `NEXT_PUBLIC_BASE_PATH` stays empty unless the host forces a sub-path.
+  Any change to routing, assets or metadata must keep `npm run verify:export` green for both the root build and a base-path build.
+- **Env vars** are build-time, optional and documented in `.env.example`. `NEXT_PUBLIC_ALLOW_INDEXING` stays unset: the demo is `noindex`.
+- **Credits:** every shipped photo has a row in `docs/IMAGE_CREDITS.md`; `npm run images:credits` reports zero missing rows and zero pending
+  before the site is made public. No photo without a record: real photos name an Unsplash or Pexels page; an AI-generated
+  variation is recorded as `AI-generated` and disclosed on the Privacy page.
+- **Labelling:** the "Demo by KHENOV" badge, the Privacy page and every portfolio text say plainly that the store is fictional.
+  No invented metrics, testimonials or client names anywhere, including the portfolio pack.
+- **Dev dependencies** are added only with a written reason: `playwright-core` (portfolio screenshots; drives the installed browser, no download).
+- **Shipping threshold:** `FREE_SHIPPING_THRESHOLD` (src/data/rules/shipping.ts) is the only source of truth. Marketing copy that quotes it
+  (home values, product delivery text, the seed banner) is guarded by `shipping-copy.test.ts`.
+- **Default colour:** a product opens on the available colour with the most photos (`defaultColor`); fallbacks for colours without
+  photos use the same rule (`colorWithMostPhotos`). Never "first in the list" or alphabetical.
+- **Breadcrumbs** stay on one line (the current page truncates) so a late font cannot wrap them and shift the page.

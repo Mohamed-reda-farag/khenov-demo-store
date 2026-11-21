@@ -104,8 +104,8 @@ export const BANNERS: readonly Banner[] = [
     id: 'strip-shipping',
     kind: 'strip',
     title: {
-      ar: 'شحن مجاني للطلبات فوق ٢٬٠٠٠ ج.م',
-      en: 'Free shipping on orders over EGP 2,000',
+      ar: 'شحن مجاني للطلبات فوق ٢٬٥٠٠ ج.م',
+      en: 'Free shipping on orders over EGP 2,500',
     },
     subtitle: { ar: 'تجريبي', en: 'Demo' },
     cta: { ar: 'تسوّق الآن', en: 'Shop now' },
