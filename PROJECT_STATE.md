@@ -134,6 +134,8 @@ and home for broken images.
 - **Credits complete:** 89 rows, 46 real photos with photographer and page, 43 marked `AI Generated`, 0 pending. The Privacy text discloses that
   some images (extra angles, colour variations, a few full sets) were generated with an AI image tool. The table renderer aligns by display
   width so CJK photographer names pass Prettier. Open question for the owner: several real photos show visible brands (see the M4.1 report).
+- **Hover is limited to the photo:** on shop cards the second-photo swap, the quick-view button and the tiles' zoom react only to the pointer over
+  the image (`group/media`), not to the title, price or the empty space around the card. The photo has its own link; the title link covers the text only.
 - Tests: 202.
 - **Known:** at 1024 px in Arabic, two long names (garden-city-mule, heliopolis-penny) shift by CLS about 0.015 when the web font replaces the
   fallback (the title wraps). Well under 0.1; a fallback-font metric override would remove it.

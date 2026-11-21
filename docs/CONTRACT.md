@@ -134,3 +134,4 @@ Also update `PROJECT_STATE.md` in the repo root (done / next / decisions / how t
 - **Default colour:** a product opens on the available colour with the most photos (`defaultColor`); fallbacks for colours without
   photos use the same rule (`colorWithMostPhotos`). Never "first in the list" or alphabetical.
 - **Breadcrumbs** stay on one line (the current page truncates) so a late font cannot wrap them and shift the page.
+- **Hover effects** (zoom, second photo, quick-view button) are scoped to the image with `group/media`, never to the whole card.

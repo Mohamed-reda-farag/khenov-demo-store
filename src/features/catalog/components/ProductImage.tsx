@@ -19,7 +19,7 @@ interface ProductImageProps {
   priority?: boolean;
   /** Called once the photo has loaded. */
   onLoaded?: () => void;
-  /** Slow scale-up when a parent with the `group` class is hovered. */
+  /** Zoom on hover; the nearest ancestor with the `group/media` class is the hover area. */
   zoom?: boolean;
   /** Fill the parent (which must be positioned) instead of owning a 4:5 box. */
   fill?: boolean;
@@ -46,7 +46,7 @@ export function ProductImage({
 }: ProductImageProps) {
   const hasPhoto = colorId !== undefined && photoCount(slug, colorId) > index;
   const art = artFor(categoryId, slug);
-  const motion = zoom ? 'transition-transform dur-slow ease-brand group-hover:scale-105' : '';
+  const motion = zoom ? 'transition-transform dur-slow ease-brand group-hover/media:scale-105' : '';
 
   return (
     <div

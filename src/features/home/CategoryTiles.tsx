@@ -78,7 +78,7 @@ export function CategoryTiles({ initial }: { initial?: CategoryTile[] }) {
               <li key={category.id}>
                 <Link
                   href={`/category/${category.slug}`}
-                  className="group relative block aspect-[4/5] overflow-hidden rounded-md bg-canvas"
+                  className="group/media relative block aspect-[4/5] overflow-hidden rounded-md bg-canvas"
                 >
                   {coverColorId ? (
                     <ProductImage

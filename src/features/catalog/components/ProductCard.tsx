@@ -56,16 +56,19 @@ export function ProductCard({
   const percent = format.discount(product.priceEGP, product.compareAtPriceEGP);
   const hasSecond = photoColorId !== undefined && photoCount(product.slug, photoColorId) > 1;
 
+  const href = `/product/${product.slug}?color=${color?.id ?? selectedId}`;
+
   return (
     <article
-      className="group relative flex flex-col gap-3"
+      className="relative flex flex-col gap-3"
       onPointerEnter={() => setWantsSecond(true)}
       onFocus={() => {
         setWantsSecond(true);
         preloadQuickView();
       }}
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-md bg-canvas">
+      {/* Hover effects (zoom, second photo, quick view) belong to the photo only, not to the whole card. */}
+      <div className="group/media relative aspect-[4/5] overflow-hidden rounded-md bg-canvas">
         <ProductImage
           fill
           slug={product.slug}
@@ -80,7 +83,7 @@ export function ProductCard({
         {hasSecond && wantsSecond ? (
           <div
             className={`absolute inset-0 opacity-0 transition-opacity dur-slow ease-brand ${
-              secondReady ? 'group-hover:opacity-100' : ''
+              secondReady ? 'group-hover/media:opacity-100' : ''
             }`}
           >
             <ProductImage
@@ -96,6 +99,7 @@ export function ProductCard({
             />
           </div>
         ) : null}
+        <Link href={href} tabIndex={-1} aria-hidden className="absolute inset-0" />
 
         <div className="pointer-events-none absolute start-3 top-3 flex flex-col items-start gap-1.5">
           {soldOut ? <Badge tone="dark">{t('soldOut')}</Badge> : null}
@@ -118,16 +122,16 @@ export function ProductCard({
           aria-label={t('quickView', { name })}
           aria-haspopup="dialog"
           onClick={() => setQuickOpen(true)}
-          className="absolute end-2 bottom-2 z-10 grid size-11 place-items-center rounded-full bg-paper/90 text-ink-900 shadow-soft transition-opacity dur-fast hover:bg-paper focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
+          className="absolute end-2 bottom-2 z-10 grid size-11 place-items-center rounded-full bg-paper/90 text-ink-900 shadow-soft transition-opacity dur-fast hover:bg-paper focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/media:opacity-100"
         >
           <Eye aria-hidden className="size-5" />
         </button>
       </div>
 
-      <div className="flex flex-col gap-1">
+      <div className="relative flex flex-col gap-1">
         <h3 className="font-display text-base font-medium">
           <Link
-            href={`/product/${product.slug}?color=${color?.id ?? selectedId}`}
+            href={href}
             className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-offset-8"
           >
             {name}
